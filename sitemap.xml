@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>http://ii.hvc.berlin/</loc>
+         <lastmod>2023-03-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://ii.hvc.berlin/filter_band/</loc>
+         <lastmod>2023-03-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://ii.hvc.berlin/system_boot/</loc>
+         <lastmod>2023-03-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+</urlset>
