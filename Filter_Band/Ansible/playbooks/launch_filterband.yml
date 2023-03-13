@@ -1,0 +1,16 @@
+---
+- name: "Start the filter_band config!"
+  hosts: localhost
+  tasks:
+
+  - name: "Launch SC!"
+    async: 2592000               # run for 1 month
+    poll: 0
+    shell: sclang filter_gui.scd
+    args:
+      chdir: /home/anwaldt/WORK/Network_Systems_2023/Filter_Band/SC/
+
+  - name: "Lauch JackTrip!"
+    shell: jacktrip -s
+    async: 2592000               # run for 1 month
+    poll: 0

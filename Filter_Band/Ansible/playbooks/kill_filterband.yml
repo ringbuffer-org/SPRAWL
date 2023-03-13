@@ -1,0 +1,13 @@
+---
+- name: "Remove the filter_band config!"
+  hosts: localhost
+  tasks:
+
+  - name: "kill SC!"
+    shell: killall sclang
+
+  - name: "kill SC!"
+    shell: killall scsynth
+
+  - name: "kill trip!"
+    shell: killall jacktrip
