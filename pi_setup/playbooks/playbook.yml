@@ -1,0 +1,11 @@
+---
+- hosts: raspberry
+  become: true
+  tasks:
+    - name: Install jack, SuperCollider, and aj-snapshot
+      apt:
+        name:
+          - jackd2
+          - supercollider
+          - aj-snapshot
+        state: latest

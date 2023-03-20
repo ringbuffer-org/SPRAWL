@@ -1,0 +1,14 @@
+---
+- hosts: raspberry
+  remote_user: root
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  connection: ssh
+
+  tasks:
+    - name: Install public SSH
+      ansible.posix.authorized_key:
+        user: member
+        state: present
+        key: "{{ lookup('file', key) }}"
