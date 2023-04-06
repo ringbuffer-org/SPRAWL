@@ -1,8 +1,4 @@
 [sprawl_nodes]
-AP-0[1:9].local
-AP-1[0:9].local
-
-[raspberry:vars]
-ansible_connection=ssh
-ansible_ssh_user=member
-ansible_ssh_private_key_file=/home/shai/.ssh/pi_rsa
+AP-01.local ansible_user=member
+AP-0[3:9].local ansible_user=member
+AP-1[0:7].local ansible_user=member

@@ -1,0 +1,18 @@
+---
+- name: Install Programs
+  hosts: AP-17.local
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Update and upgrade System
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+    - name: Install Jack, SuperCollider, aj-snapshot and jacktrip
+      ansible.builtin.apt:
+        name:
+          - jackd2
+          - supercollider
+          - aj-snapshot
+          - jacktrip
+        state: latest

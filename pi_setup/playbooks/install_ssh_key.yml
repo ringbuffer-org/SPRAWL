@@ -1,9 +1,6 @@
 ---
-- hosts: raspberry
-  remote_user: root
-  become: yes
-  become_method: sudo
-  gather_facts: no
+- name: Install_ssh_key
+  hosts: AP-17.local
   connection: ssh
 
   tasks:
