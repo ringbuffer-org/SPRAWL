@@ -1,22 +1,21 @@
 # SPRAWL Notes
 
-
 ## User & Hostname
 
-- Every PI has the same user name?
-    - member
+- Every PI has the same user name
 
-- Every PI has an individual hostname?
-    - AP_x
+  - member
+
+- Every PI has an individual hostname
+  - AP_XX
 
 ## Network
 
-- Ethernet: switch with manual DHCP addresses.
+- Ethernet: switch with router and DHCP, nodes can be reached via hostnam.
 
 - Wireless: each PI opens an individual WiFi.
-    - SSH enabled
-    - VNC/RDP enabled
-
+  - SSH enabled
+  - VNC/RDP enabled
 
 ## Installed Software
 
@@ -26,14 +25,26 @@
 - JackTrip
 
 - SuperCollider
-    - sclang
-    - scsynth
-    - sc3-plugins
+
+  - sclang
+  - scsynth
+  - sc3-plugins
 
 - PD (vanilla)
 
 - Python3
-    - python-osc
+  - python-osc
+
+# Initial Setup of Pi
+
+Flash Rasperry Pi OS to a SD-Card, use these Settings in the RPi-Imager:
+
+- set hostname: `AP-XX` (where `XX` is the associated number of the Pi)
+- enable SSH, use password authentication
+- set username and password
+  - Username: `member`
+  - Password:
+- set locale settings (optional)
 
 ## Roll out (new) Pieces
 
@@ -41,13 +52,12 @@ Stuff for pieces in one directory only:
 
     /home/member/pieces/piece_subdir
 
-Tow options:
+Two options:
 
 - Distribute code & binaries via ssh (ansible).
 - Grab all code (& build binaries) via repositories (pull via ansible).
 
-
 ## Start and Stop Pieces
 
 - System needs to be back in plain state after each piece.
-    - provide 'kill' playbooks
+  - provide 'kill' playbooks

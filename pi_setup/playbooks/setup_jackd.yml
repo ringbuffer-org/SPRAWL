@@ -1,0 +1,60 @@
+---
+- name: Setup jackd service files
+  hosts: AP-17.local
+  gather_facts: false
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Template out jackd.service
+
+      ansible.builtin.template:
+        src: jackd.service.j2
+        dest: /usr/lib/systemd/user/jackd.service
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+      vars:
+        jackd_params: "-R -d alsa -d hw:CODEC -p 256"
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable jackd service
+      ansible.builtin.systemd:
+        service: jackd.service
+        enabled: true
+        scope: user
+        masked: false
+      become: false
+
+    - name: Disable pulseaudio.socket
+      ansible.builtin.systemd:
+        name: pulseaudio.socket
+        enabled: false
+        masked: true
+        scope: user
+      become: false
+
+    - name: Disable pulseaudio.service
+      ansible.builtin.systemd:
+        name: pulseaudio.service
+        enabled: false
+        masked: true
+        scope: user
+      become: false
+
+    # - name: Template out udev rule
+    #   ansible.builtin.template:
+    #     src: 80-uphoria.rules.j2
+    #     dest: /etc/udev/rules.d/80-uphoria.rules
+    #     owner: root
+    #     group: root
+    #     mode: u=rw,g=r,o=r
+    #   vars:
+    #     vendor_id: "08bb"
+    #     product_id: "2902"
+    #     jackd_service_name: jackd.service
+
+    # - name: Reload udev rules
+    #   ansible.builtin.command: udevadm control --reload

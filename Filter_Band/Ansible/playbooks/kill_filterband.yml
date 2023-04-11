@@ -1,13 +1,12 @@
 ---
 - name: "Remove the filter_band config!"
-  hosts: localhost
+  hosts: AP-17.local
   tasks:
+    - name: "kill SC!"
+      shell: killall sclang
 
-  - name: "kill SC!"
-    shell: killall sclang
+    - name: "kill SC!"
+      shell: killall scsynth
 
-  - name: "kill SC!"
-    shell: killall scsynth
-
-  - name: "kill trip!"
-    shell: killall jacktrip
+    - name: "kill trip!"
+      shell: killall jacktrip

@@ -1,0 +1,1 @@
+ACTION=="add",ATTR{idVendor}=="{{vendor_id}}",ATTR{idProduct}=="{{product_id}}",TAG+="systemd",ENV{SYSTEMD_USER_WANTS}="{{jackd_service_name}}"

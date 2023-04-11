@@ -1,0 +1,29 @@
+---
+- name: Restart jackd
+  hosts: AP-17.local
+  gather_facts: false
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Template out jackd.service
+
+      ansible.builtin.template:
+        src: jackd.service.j2
+        dest: /usr/lib/systemd/user/jackd.service
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+      vars:
+        jackd_params: -R -a a -d alsa -d hw:CODEC -p 128
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable jackd service
+      ansible.builtin.systemd:
+        service: jackd.service
+        state: restarted
+        scope: user
+      become: false

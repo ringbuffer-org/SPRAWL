@@ -16,3 +16,7 @@
           - aj-snapshot
           - jacktrip
         state: latest
+    - name: Remove pulseaudio
+      ansible.builtin.apt:
+        name: pulseaudio
+        state: absent
