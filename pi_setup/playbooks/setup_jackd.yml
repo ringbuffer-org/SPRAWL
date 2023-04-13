@@ -1,6 +1,6 @@
 ---
 - name: Setup jackd service files
-  hosts: AP-17.local
+  hosts: sprawl_nodes
   gather_facts: false
   become: true
   become_method: sudo
@@ -14,7 +14,7 @@
         group: root
         mode: u=rw,g=r,o=r
       vars:
-        jackd_params: "-R -d alsa -d hw:CODEC -p 256"
+        jackd_params: "-R -a a -d alsa -d hw:CODEC -p 256"
 
     - name: Reload systemd daemon
       ansible.builtin.systemd:
@@ -43,6 +43,9 @@
         masked: true
         scope: user
       become: false
+
+    - name: Reboot after
+      ansible.builtin.reboot:
 
     # - name: Template out udev rule
     #   ansible.builtin.template:

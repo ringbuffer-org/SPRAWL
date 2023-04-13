@@ -46,6 +46,24 @@ Flash Rasperry Pi OS to a SD-Card, use these Settings in the RPi-Imager:
   - Password:
 - set locale settings (optional)
 
+## Provisioning
+
+After boot, execute these playbooks to make it run
+
+```bash
+ansible-playbook pi_setup/playbooks/install_ssh_key.yml --ask-pass -e "key=path/to/public/key"
+ansible-playbook pi_setup/playbooks/install_programs.yml # this takes a very lomge time
+ansible-playbook pi_setup/playbooks/setup_jackd.yml
+ansible-playbook pi_setup/playbooks/setup_accesspoint.yml
+```
+
+# Jacktrip Configuration
+
+Two options:
+
+- One server on each PI, every PI has a client for each server (n Servers, n\*n-1 clients)
+- p2p connections between all PIs ((n\*(n-1))/2 connections)
+
 ## Roll out (new) Pieces
 
 Stuff for pieces in one directory only:

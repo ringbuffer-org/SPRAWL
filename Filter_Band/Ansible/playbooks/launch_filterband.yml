@@ -9,10 +9,11 @@
         owner: member
         group: member
         mode: "0644"
+
     - name: "Launch SC!"
       async: 2592000 # run for 1 month
       poll: 0
-      shell: DISPLAY=:0 sclang filter_gui.scd >> filter_log.txt
+      shell: DISPLAY=:0 sclang filter_gui.scd
       args:
         chdir: /home/member/Desktop/Filter_Band/SC
 

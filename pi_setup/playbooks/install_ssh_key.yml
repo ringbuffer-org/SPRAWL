@@ -1,6 +1,6 @@
 ---
 - name: Install_ssh_key
-  hosts: AP-17.local
+  hosts: sprawl_nodes
   connection: ssh
 
   tasks:

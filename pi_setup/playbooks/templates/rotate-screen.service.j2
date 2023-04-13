@@ -1,0 +1,9 @@
+[Unit]
+Description=Rotate Screen
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "DISPLAY=:0 xrandr --output HDMI-1 --off --output HDMI-2 --off --output DSI-1 --primary --mode 800x480 --rate 59.928 --pos 0x0 --rotate inverted"
+
+[Install]
+WantedBy=multi-user.target

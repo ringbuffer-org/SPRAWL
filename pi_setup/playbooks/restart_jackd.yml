@@ -1,6 +1,6 @@
 ---
 - name: Restart jackd
-  hosts: AP-17.local
+  hosts: sprawl_nodes
   gather_facts: false
   become: true
   become_method: sudo
@@ -17,12 +17,13 @@
       vars:
         jackd_params: -R -a a -d alsa -d hw:CODEC -p 128
 
-    - name: Reload systemd daemon
+    # - name: Reload systemd daemon
+    #   ansible.builtin.systemd:
+    #     daemon_reload: true
+
+    - name: Restart jackd service
       ansible.builtin.systemd:
         daemon_reload: true
-
-    - name: Enable jackd service
-      ansible.builtin.systemd:
         service: jackd.service
         state: restarted
         scope: user
