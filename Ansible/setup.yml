@@ -1,0 +1,196 @@
+---
+- name: APT
+  hosts: p2psc
+  become: true
+  tasks:
+  - name: Installing and updating packages
+    apt:
+      pkg:
+        - supercollider
+        - jackd2
+        - python3-pip
+        - lightdm
+        - lxsession
+        - xinput
+        - git
+        - sc3-plugins
+      state: latest
+      update_cache: yes
+    tags:
+      - install
+      - apt
+
+### LXDE
+- name: Enable GUI boot
+  hosts: p2psc
+  become: true
+  tags: guiboot
+  tasks:
+  - name: Enable lxsession autologin
+    ansible.builtin.command: raspi-config nonint do_boot_behaviour B4
+  - name: Reboot for lxde config file init
+    reboot:
+
+### SCREEN ROTATION
+- name: Automate screen rotation
+  hosts: p2psc
+  tags: rotation
+  tasks:
+  - name: add screen roation command to lxsession startup
+    ansible.builtin.lineinfile:
+      path: ~/.config/lxsession/LXDE/autostart
+      line: "@sh /home/{{ ansible_user_id }}/scripts/rotate.sh"
+      state: present
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /home/{{ ansible_user_id }}/scripts
+      state: directory
+      mode: '0755'
+  - name: Copy rotation script
+    ansible.builtin.copy:
+      dest: /home/{{ ansible_user_id }}/scripts/rotate.sh
+      mode: 0755
+      content: |
+        #!/bin/bash
+        DISPLAY=:0 xrandr -o inverted
+        DISPLAY=:0 xinput --set-prop "generic ft5x06 (79)" "Coordinate Transformation Matrix" -1 0 1 0 -1 1 0 0 1
+
+### KEYBOARD LAYOUT
+- name: Setup german layout
+  hosts: p2psc
+  become: true
+  tags: layout 
+  tasks:
+  - copy:
+      dest: /etc/default/keyboard
+      mode: 0664
+      content: |
+        # KEYBOARD CONFIGURATION FILE
+
+        # Consult the keyboard(5) manual page.
+
+        XKBMODEL="pc105"
+        XKBLAYOUT="de"
+        XKBVARIANT=""
+        XKBOPTIONS=""
+
+        BACKSPACE="guess"
+
+### JACK AUDIO
+- name: Add user to audio group and enable jack limits config
+  hosts: p2psc
+  tags: jack
+  tasks:
+  - shell: usermod -a -G audio {{ ansible_user_id }}
+    become: true
+  - copy: remote_src=True src=/etc/security/limits.d/audio.conf.disabled dest=/etc/security/limits.d/audio.conf
+    become: true
+  - name: Create script to start Jack Audio
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/jack.sh
+      mode: 0755
+      content: |
+        #!/bin/bash
+        /usr/bin/jackd -P75 -dalsa -dhw:1 -p512 -n3 -s -r44100 2>&1 &
+  - name: Create script to start jack in a terminal
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/jack_terminal.sh
+      mode: 0755
+      content: |
+        DISPLAY=:0 lxterminal --command="/home/{{ ansible_user_id }}/scripts/jack.sh" -t jack
+  - name: Run terminal script on bootup
+    ansible.builtin.lineinfile:
+      path: ~/.config/lxsession/LXDE/autostart
+      line: "@sh /home/{{ ansible_user_id }}/scripts/jack_terminal.sh"
+      state: present
+
+### P2PSC
+- name: Setup Python for p2psc
+  hosts: p2psc
+  tasks:
+  - name: Install p2psc python dependencies
+    pip:
+      name:
+        - python-osc
+        - zeroconf
+      executable: pip3
+    tags:
+      - install
+      - pip
+
+- name: Download and setup P2PSC
+  hosts: p2psc
+  tags: p2psc
+  tasks:
+  - name: Clone main
+    ansible.builtin.git:
+      repo: https://github.com/bontric/p2psc.git
+      dest: /home/{{ ansible_user_id }}/p2psc
+      single_branch: yes
+      version: main
+      update: yes
+  - name: Create script to start p2psc and Jack Audio
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/p2psc.sh
+      mode: 0755
+      content: |
+        #!/bin/bash
+        echo "Waiting for DHCP/AutoIP init..."
+        sleep 10;
+        PYTHONPATH=~/p2psc/ python3 ~/p2psc/p2psc/main.py -v
+  - name: Create script to start p2psc in a terminal
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/p2psc_terminal.sh
+      mode: 0755
+      content: |
+        DISPLAY=:0 lxterminal --command="/home/{{ ansible_user_id }}/scripts/p2psc.sh" -t p2psc
+  - name: Run terminal script on bootup
+    ansible.builtin.lineinfile:
+      path: ~/.config/lxsession/LXDE/autostart
+      line: "@sh /home/{{ ansible_user_id }}/scripts/p2psc_terminal.sh"
+      state: present
+  - name: Create default config file
+    copy:
+      dest: /home/{{ ansible_user_id }}/.p2psc.conf
+      mode: 0664
+      content: |
+        {
+          "name": "{{ ansible_user_id }}",
+          "zeroconf": true,
+          "ip": null,
+          "port": 3760
+        }
+
+- name: Setup Supercollider
+  hosts: p2psc
+  tags: sclang
+  tasks:
+  - name: Create Supercollider config dir
+    ansible.builtin.file:
+      path: ~/.config/SuperCollider
+      state: directory
+      mode: '0755'
+  - name: Add p2psc library path
+    copy:
+      dest: ~/.config/SuperCollider/sclang_conf.yaml
+      mode: 0664
+      content: |
+        includePaths:
+            -    ~/p2psc/libs/sclang
+        excludePaths:
+            []
+        postInlineWarnings: false
+  - name: Add SuperCollider startup file
+    copy:
+      dest: ~/.config/SuperCollider/startup.scd
+      mode: 0664
+      content: |
+        s.options.numInputBusChannels = 12;
+        s.options.numOutputBusChannels = 12;
+
+- name: Finalize Setup
+  hosts: p2psc
+  become: true
+  tasks:
+  - name: Reboot
+    reboot:

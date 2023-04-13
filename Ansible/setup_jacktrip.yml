@@ -1,0 +1,211 @@
+
+
+- name: Install Jacktrip 
+  hosts: p2psc
+  tags: jacktrip
+
+  tasks:
+  - name: Install prerequisites
+    become: true
+    apt:
+      pkg:
+        - build-essential
+        - qtdeclarative5-dev
+        - autoconf
+        - automake
+        - libtool
+        - make
+        - libjack-jackd2-dev
+        - help2man
+        - libqt5svg5-dev
+        - libqt5networkauth5-dev
+        - libqt5websockets5-dev
+        - systemd
+      state: latest
+      update_cache: yes
+
+  - name: Clone jacktrip repository
+    become: false
+    ansible.builtin.git:
+      repo: https://github.com/jacktrip/jacktrip.git
+      dest: /home/{{ ansible_user_id }}/jacktrip
+      single_branch: yes
+      version: main
+      update: yes
+
+  - name: Run jacktrip build/install script
+    ansible.builtin.shell: |
+      cd /home/{{ ansible_user_id }}/jacktrip/
+      ./build install
+
+- name: jack-matchmaker
+  hosts: p2psc
+  tags: jack-matchmaker
+  tasks:  
+  - name: Install jack-matchmaker
+    become: true
+    pip:
+      name:
+        - jack-matchmaker
+      executable: pip3
+  - name: Clone jacktrip-matchmaker for service files
+    become: false
+    ansible.builtin.git:
+      repo: https://github.com/SpotlightKid/jack-matchmaker.git
+      dest: /home/{{ ansible_user_id }}/jack-matchmaker
+      single_branch: yes
+      update: yes
+      force: yes
+
+  - name: Fix jack-matchmaker path in servicefile
+    become: false
+    ansible.builtin.lineinfile:
+      path: /home/{{ ansible_user_id }}/jack-matchmaker/systemd/jack-matchmaker.service
+      search_string: ExecStart=
+      line: ExecStart=/bin/bash -c 'jack-matchmaker $${PATTERN_FILE+-p "$PATTERN_FILE"} $${EXACT_MATCHING:+-e} $${CLIENT_NAME+-N "$CLIENT_NAME"} $${CONNECT_INTERVAL+-I $CONNECT_INTERVAL} $${MAX_ATTEMPTS+-m $MAX_ATTEMPTS} $${VERBOSITY+-v $VERBOSITY} $$PATTERNS'
+      state: present
+
+  - name: copy service files
+    become: true
+    ansible.builtin.shell: |
+      install -Dm644 /home/{{ ansible_user_id }}/jack-matchmaker/systemd/jack-matchmaker.conf /etc/conf.d/jack-matchmaker
+      install -Dm644 /home/{{ ansible_user_id }}/jack-matchmaker/systemd/jack-matchmaker.service -t /usr/lib/systemd/user
+
+
+  - name: Set jack-matchmaker pattern file
+    become: true
+    ansible.builtin.lineinfile:
+      path: /etc/conf.d/jack-matchmaker
+      line: "PATTERN_FILE=\"/home/{{ ansible_user_id }}/.jack-matchmaker-patterns\""
+      state: present
+
+  - name: Create jack-matchmaker pattern file
+    become: false
+    copy:
+      dest: /home/{{ ansible_user_id }}/.jack-matchmaker-patterns
+      mode: 0664
+      content: |
+        # No default configuration. Use jacktrip.yml for session config
+
+  - name: Start jack-matchmaker service
+    ansible.builtin.service: 
+      name: jack-matchmaker
+      enabled: yes
+      state: started
+      scope: user
+
+- name: Setup Supercollider
+  hosts: p2psc
+  tags: sclang
+  - name: Add SuperCollider startup file
+    copy:
+      dest: ~/.config/SuperCollider/startup.scd
+      mode: 0664
+      content: |
+        s.options.numInputBusChannels = 12;
+        s.options.numOutputBusChannels = 12;
+
+- name: Jacktrip Connection setup
+  hosts: p2psc
+  tags: jacktrip-connections
+  tasks:
+  - name: Create jack-matchmaker config
+    copy:
+      dest: /home/{{ ansible_user_id }}/.jack-matchmaker-patterns
+      mode: 0664
+      content: |
+        nodeA:receive_1 
+        SuperCollider:in_3
+        
+        SuperCollider:out_3
+        nodeA:send_1 
+        
+        nodeB:receive_1 
+        SuperCollider:in_4
+        
+        SuperCollider:out_4
+        nodeB:send_1 
+        
+        nodeC:receive_1 
+        SuperCollider:in_5
+        
+        SuperCollider:out_5
+        nodeC:send_1 
+        
+        nodeD:receive_1 
+        SuperCollider:in_6
+        
+        SuperCollider:out_6
+        nodeD:send_1 
+        
+        nodeE:receive_1 
+        SuperCollider:in_7
+        
+        SuperCollider:out_7
+        nodeE:send_1 
+        
+        nodeF:receive_1 
+        SuperCollider:in_8
+        
+        SuperCollider:out_8
+        nodeF:send_1 
+        
+        nodeG:receive_1
+        SuperCollider:in_9
+        
+        SuperCollider:out_9
+        nodeG:send_1 
+        
+        nodeH:receive_1 
+        SuperCollider:in_10
+
+        SuperCollider:out_10
+        nodeH:send_1 
+  
+  - name: reload jack-matchmaker pattern file 
+    ansible.builtin.command: systemctl --user reload jack-matchmaker 
+
+  - name: create jacktrip-connections config file
+    become: false
+    copy:
+      dest: /home/{{ ansible_user_id }}/.jacktrip_connections
+      mode: 0664
+      content: |
+
+  - name: Create connection list for each client
+    ansible.builtin.shell: |
+      ownIndex={{ play_hosts.index(inventory_hostname) }}
+      index={{ index }}
+      echo "$ownIndex $index" >> /home/{{ ansible_user_id }}/test 
+      if [ "$ownIndex" -lt "$index" ]; then
+        item={{ item }}
+        remote_host_addr=${item#*@}
+        remote_host=${remote_host_addr%%.*}
+        echo -n "$remote_host " >> /home/{{ ansible_user_id }}/.jacktrip_connections ;
+      fi
+    loop: "{{ ansible_play_hosts }}"
+    loop_control:
+      index_var: index
+
+  - name: Create jacktrip connection script  
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/jt_connect.sh
+      mode: 0776
+      content: |
+        #!/bin/bash
+
+        # start jacktrip server in hub (-S) mode for incoming connections
+        # and disable default connections (-D)
+        jacktrip -S -D > /dev/null 2>&1 & 
+        
+        # wait 5 seconds to make sure all hubs are started
+        sleep 5; 
+
+        # Go through list of hosts and establish connections
+        hosts=$(cat /home/{{ ansible_user_id }}/.jacktrip_connections)
+        port=4464
+        for h in $hosts; do
+          # create a 1-channel connection to each host (-n1)
+          jacktrip -C ${h}.local -J $h -K {{ ansible_user_id }} -n1 -D -B${port} > /dev/null 2>&1 & 
+          ((port=port+1))
+        done
