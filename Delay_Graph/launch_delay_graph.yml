@@ -1,0 +1,89 @@
+---
+- name: "Start the filter_band config!"
+  hosts: [AP-01.local, AP-03.local, AP-04.local, AP-05.local]
+  gather_facts: false
+  vars:
+    graph:
+      node1:
+        - out1_to_node1_2
+        - out2_to_node2_1
+        - out2_to_node3_1
+      node2:
+        - out1_to_node2_2
+        - out2_to_node4_1
+        - out2_to_node4_1
+      node3:
+        - out1_to_node4_1
+        - out2_to_node4_1
+      node4:
+        - out1_to_node4_2
+        - out2_to_node4_1
+
+
+  tasks:
+    - name: "Ensure 'pieces' dir exists"
+      ansible.builtin.file:
+        path: /home/member/pieces/
+        state: directory
+        owner: member
+        group: member
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: "Copy Files onto the server"
+      ansible.builtin.copy:
+        src: SC
+        dest: /home/member/pieces/delay_graph
+        owner: member
+        group: member
+        mode: "0644"
+
+    - name: "Launch SC!"
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 sclang delay_gui.scd
+      args:
+        chdir: /home/member/pieces/delay_graph
+
+    - name: "Launch JackTrip Server"
+      shell: jacktrip -S -p5
+      async: 2592000 # run for 1 month
+      poll: 0
+
+    - name: "Launch lots of JackTrip clients"
+      # create connection to server ITEM, where this client is called INVENTORY_HOSTNAME_from, on the local
+      # machine it is called ITEM_to, with an increasing udp port
+      shell: jacktrip -C {{ item }} -K {{ inventory_hostname }}_from -J {{ item }}_to -B {{ base_port + index }}
+      async: 2592000 # run for 1 month
+      poll: 0
+      loop: "{{ ansible_play_hosts | difference([inventory_hostname]) }}"
+      loop_control:
+        index_var: index
+      vars:
+        base_port: 4464
+
+
+    - name: "Wait a couple of seconds"
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: "Connect all Supercollider Instances to Hardware In- and Outputs"
+      ansible.builtin.shell: |
+        jack_connect SuperCollider:out_1 system:playback_1
+        jack_connect system:capture_1 SuperCollider:in_1
+
+    - name: "Connect all Jacktrip Receivers"
+      ansible.builtin.shell: |
+        jack_connect {{ item }}_from:receive_1 SuperCollider:in_2
+        jack_connect {{ item }}_from:receive_2 SuperCollider:in_3
+      loop: "{{ ansible_play_hosts | difference([inventory_hostname]) }}"
+
+    - name: "Connect all graph edges"
+      ansible.builtin.command: jack_connect SuperCollider:out_{{ source_port }} {{ target_host }}_to:send_{{ target_port }}
+      loop: "{{ graph['node' + index_of_host] }}"
+      vars:
+        index_of_host: "{{ ansible_play_hosts.index(inventory_hostname) + 1 }}"
+        source_port: "{{ item[3] }}"
+        target_host_index: "{{ item[12] }}"
+        target_host: "{{ ansible_play_hosts[target_host_index | int] }}"
+        target_port: "{{ item[14] }}"
+      when: graph['node' + index_of_host] is defined
