@@ -1,6 +1,0 @@
----
-- name: Start jackd
-  hosts: AP-17.local
-  tasks:
-    - name: Start jackd
-      ansible.builtin.shell: "jackd -R -d alsa -d hw:CODEC -p 256&"
