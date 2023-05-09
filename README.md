@@ -1,5 +1,5 @@
-# SPRAWL_2
+# SPRAWL
 
-A temporary repository for a fresh start with the system
+A repository for a fresh start with the system
 
-Documentation: https://ringbuffer-org.github.io/SPRAWL_2/
+Documentation: https://ringbuffer-org.github.io/SPRAWL/
