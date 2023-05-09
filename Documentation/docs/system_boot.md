@@ -52,9 +52,7 @@ After boot, execute these playbooks to make it run
 
 ```bash
 ansible-playbook pi_setup/playbooks/install_ssh_key.yml --ask-pass -e "key=path/to/public/key"
-ansible-playbook pi_setup/playbooks/install_programs.yml # this takes a very lomge time
-ansible-playbook pi_setup/playbooks/setup_jackd.yml
-ansible-playbook pi_setup/playbooks/setup_accesspoint.yml
+ansible-playbook pi_setup/playbooks/full_setup.yml
 ```
 
 # Jacktrip Configuration

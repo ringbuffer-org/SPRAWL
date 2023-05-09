@@ -20,6 +20,10 @@
           - jackd2
           - supercollider
           - aj-snapshot
+          - sc3-plugins
+          - python3-pip
+          - git
+          - puredata
 
         state: latest
         update_cache: true

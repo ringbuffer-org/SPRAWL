@@ -17,13 +17,13 @@ s.waitForBoot(
         s.sync;
 
         // initial Bus Values
-        ~bus_feedback1.set(0.5);
-        ~bus_feedback2.set(0.5);
-        ~bus_delay1.set(1.1);
-        ~bus_delay2.set(1);
-        ~bus_mix1.set(0.4);
-        ~bus_mix2.set(0.1);
-        ~bus_gain.set(0.5);
+        ~bus_feedback1.set(0.8);
+        ~bus_feedback2.set(0.8);
+        ~bus_delay1.set(0.3);
+        ~bus_delay2.set(0.35);
+        ~bus_mix1.set(0.9);
+        ~bus_mix2.set(0.9);
+        ~bus_gain.set(0.9);
 
         // GUI goes here
         // inside defer to allow using GUI elements in the Routine

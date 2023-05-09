@@ -1,35 +1,35 @@
 ---
-# - name: Don't setup screen rotation because it does not work
-#   hosts: localhost
-#   tasks:
-#     - name: Rotation machine broke
-#       ansible.builtin.debug:
-#         msg: "For reason unbeknownst to the author, screen rotation has to be performed manually. How Curious..."
-#         # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
-#         # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
-#         # *inhales*
-#         # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
-- name: Setup Screen rotation
-  hosts: sprawl_nodes
-  gather_facts: false
-  become: true
+- name: Don't setup screen rotation because it does not work
+  hosts: localhost
   tasks:
-    - name: Set proper display configuration
-      ansible.builtin.template:
-        src: rotate-screen.service.j2
-        dest: /lib/systemd/user/rotate-screen.service
-        owner: root
-        group: root
-        mode: u=rw,g=r,o=r
+    - name: Rotation machine broke
+      ansible.builtin.debug:
+        msg: "For reason unbeknownst to the author, screen rotation has to be performed manually. How Curious..."
+        # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
+        # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
+        # *inhales*
+        # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
+# - name: Setup Screen rotation
+#   hosts: sprawl_nodes
+#   gather_facts: false
+#   become: true
+#   tasks:
+#     - name: Set proper display configuration
+#       ansible.builtin.template:
+#         src: rotate-screen.service.j2
+#         dest: /lib/systemd/user/rotate-screen.service
+#         owner: root
+#         group: root
+#         mode: u=rw,g=r,o=r
 
-    - name: Start and Enable service
-      ansible.builtin.systemd:
-        name: rotate-screen.service
-        state: started
-        enabled: true
-        scope: user
-        daemon_reload: true
-      become: false
+#     - name: Start and Enable service
+#       ansible.builtin.systemd:
+#         name: rotate-screen.service
+#         state: started
+#         enabled: true
+#         scope: user
+#         daemon_reload: true
+#       become: false
 
-    - name: Reboot
-      reboot:
+#     - name: Reboot
+#       reboot:
