@@ -1,0 +1,26 @@
+---
+- name: Ping all hosts
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+    # - name: Ping all other hosts
+    #   ansible.builtin.debug:
+    #     msg: "ping {{item}}"
+    #   loop: "{{groups['sprawl_nodes'] | difference([inventory_hostname])}}"
+    - name: Kill all JackTrip things
+      command: killall jacktrip
+      ignore_errors: true
+    - name: "Launch JackTrip Server"
+      shell: jacktrip -S -p5
+      async: 2592000 # run for 1 month
+      poll: 0
+    - name: "Launch lots of JackTrip clients"
+      # create connection to server with the name
+      shell: jacktrip -C {{ item }} -K {{ inventory_hostname }}_from -J {{ item }}_to -B {{ base_port + index }}
+      async: 2592000 # run for 1 month
+      poll: 0
+      loop: "{{ groups['sprawl_nodes'] | difference([inventory_hostname]) }}"
+      loop_control:
+        index_var: index
+  vars:
+    base_port: 4464

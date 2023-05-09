@@ -1,0 +1,20 @@
+[Unit]
+Description=JACK audio server
+After=graphical.target sound.target
+
+[Service]
+Type=notify
+PrivateTmp=true
+WorkingDirectory=/usr/local/bin
+StandardOutput=inherit
+StandardError=inherit
+LimitRTPRIO=95
+LimitRTTIME=infinity
+LimitMEMLOCK=infinity
+Environment="JACK_NO_AUDIO_RESERVATION=1"
+
+ExecStart=/usr/bin/jackd {{jackd_params}}
+
+
+[Install]
+WantedBy=default.target

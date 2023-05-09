@@ -1,0 +1,40 @@
+---
+- name: Install Programs
+  hosts: sprawl_nodes
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Update and upgrade System
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+
+    - name: Add backport repository
+      apt_repository:
+        repo: "deb http://deb.debian.org/debian bullseye-backports main"
+        state: present
+
+    - name: Install Jack, SuperCollider, aj-snapshot
+      ansible.builtin.apt:
+        name:
+          - jackd2
+          - supercollider
+          - aj-snapshot
+          - sc3-plugins
+          - python3-pip
+          - git
+          - puredata
+
+        state: latest
+        update_cache: true
+
+    - name: Install jacktrip from backport repository
+      ansible.builtin.apt:
+        name: jacktrip
+        state: latest
+        default_release: bullseye-backports
+
+    - name: Remove pulseaudio
+      ansible.builtin.apt:
+        name: pulseaudio
+        state: absent

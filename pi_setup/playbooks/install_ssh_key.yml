@@ -1,0 +1,11 @@
+---
+- name: Install_ssh_key
+  hosts: sprawl_nodes
+  connection: ssh
+
+  tasks:
+    - name: Install public SSH
+      ansible.posix.authorized_key:
+        user: member
+        state: present
+        key: "{{ lookup('file', key) }}"

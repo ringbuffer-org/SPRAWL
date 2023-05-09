@@ -1,0 +1,99 @@
+---
+- name: Configure Raspberry Pi as a WiFi Access Point
+  hosts: sprawl_nodes
+  become: true
+  vars:
+    router_static_ip: 192.168.4.1
+    dhcp_range_start: 192.168.4.2
+    dhcp_range_end: 192.168.4.200
+
+  tasks:
+    # Install Packages
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - hostapd
+          - dnsmasq
+        state: present
+        update_cache: true
+
+    - name: Install packages for the firewall
+      apt:
+        name:
+          - netfilter-persistent
+          - iptables-persistent
+        state: present
+        update_cache: yes
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Enable hostapd service
+      ansible.builtin.systemd:
+        name: hostapd
+        enabled: true
+        masked: false
+
+    - name: First reboot
+      ansible.builtin.reboot:
+
+    # Configure dhcpcd.conf
+    - name: Add static ip configuration to dhcpcd.conf
+      ansible.builtin.blockinfile:
+        path: /etc/dhcpcd.conf
+        block: |
+          interface wlan0
+              static ip_address={{ router_static_ip }}/24
+              nohook wpa_supplicant
+
+    # setup network bridge
+    - name: Template out routed-ap.conf
+      ansible.builtin.template:
+        src: routed-ap.conf.j2
+        dest: /etc/sysctl.d/routed-ap.conf
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Setup ip routing
+      ansible.builtin.iptables:
+        table: nat
+        chain: POSTROUTING
+        out_interface: eth0
+        jump: MASQUERADE
+        action: append
+
+    - name: Save the firewall rules
+      command: sudo netfilter-persistent save
+
+    # setup access point
+    - name: Template out dnsmasq.conf
+      ansible.builtin.template:
+        src: dnsmasq.conf.j2
+        dest: /etc/dnsmasq.conf
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+      vars:
+        router_dns_name: "{{ inventory_hostname }}"
+    - name: Set WiFi Country Code
+      ansible.builtin.command: sudo raspi-config nonint do_wifi_country DE
+
+    - name: Unblock wifi operation
+      ansible.builtin.command: rfkill unblock wlan
+
+    # - name: Unblock wifi operation using different command
+    #   ansible.builtin.command: rfkill unblock phy0
+
+    - name: Configure Access Point settings
+      ansible.builtin.template:
+        src: hostapd.conf.j2
+        dest: /etc/hostapd/hostapd.conf
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+      vars:
+        wifi_ssid: "{{ inventory_hostname[:-6] }} WiFi"
+        wifi_pw: 12345678
+
+    - name: Reboot after
+      ansible.builtin.reboot:

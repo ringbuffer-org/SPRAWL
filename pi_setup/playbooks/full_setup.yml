@@ -1,0 +1,12 @@
+---
+- name: Install programs
+  ansible.builtin.import_playbook: install_programs.yml
+
+- name: Setup jackd
+  ansible.builtin.import_playbook: setup_jackd.yml
+
+- name: Setup Access Point
+  ansible.builtin.import_playbook: setup_accesspoint.yml
+
+- name: Setup Screen Rotation
+  ansible.builtin.import_playbook: setup_screenrotation.yml

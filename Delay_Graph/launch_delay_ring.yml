@@ -1,0 +1,65 @@
+---
+- name: "Start the filter_band config!"
+  hosts: active_sprawl_nodes
+  gather_facts: false
+
+  tasks:
+    - name: "Ensure 'pieces' dir exists"
+      ansible.builtin.file:
+        path: /home/member/pieces/
+        state: directory
+        owner: member
+        group: member
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: "Copy Files onto the server"
+      ansible.builtin.copy:
+        src: SC
+        dest: /home/member/pieces/delay_graph
+        owner: member
+        group: member
+        mode: "0644"
+
+    - name: "Launch SC!"
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 sclang delay_gui.scd
+      args:
+        chdir: /home/member/pieces/delay_graph/SC
+
+    - name: "Launch JackTrip Server"
+      shell: jacktrip -S -p5 >> /tmp/jacktrip_server.log
+      async: 2592000 # run for 1 month
+      poll: 0
+
+    - name: "Launch JackTrip client to next host"
+      shell: jacktrip -C {{ next_host }} -K {{ inventory_hostname }} -J {{ next_host }} >> /tmp/jacktrip_client.log
+      async: 2592000 # run for 1 month
+      poll: 0
+      vars:
+        index_of_host: "{{ ansible_play_hosts.index(inventory_hostname) }}"
+        length_of_hosts: "{{ ansible_play_hosts | length }}"
+        next_host: "{{ ansible_play_hosts[((index_of_host | int) + 1) % (length_of_hosts | int)] }}"
+        prev_host: "{{ ansible_play_hosts[((index_of_host | int) - 1) % (length_of_hosts | int)] }}"
+
+    - name: "Wait a couple of seconds"
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: "Connect all Supercollider Instances to Hardware In- and Outputs"
+      ansible.builtin.shell: |
+        jack_connect SuperCollider:out_1 system:playback_1
+        jack_connect system:capture_1 SuperCollider:in_1
+        jack_connect system:capture_2 SuperCollider:in_1
+
+    - name: "Connect local Jacktrip Clients"
+      ansible.builtin.shell: |
+        jack_connect {{ next_host }}:receive_1 SuperCollider:in_2
+        jack_connect {{ prev_host }}:receive_1 SuperCollider:in_3
+        jack_connect SuperCollider:out_2 {{ prev_host }}:send_1
+        jack_connect SuperCollider:out_3 {{ next_host }}:send_1
+      vars:
+        next_host: "{{ ansible_play_hosts[((index_of_host | int) + 1) % (length_of_hosts | int)] }}"
+        prev_host: "{{ ansible_play_hosts[((index_of_host | int) - 1) % (length_of_hosts | int)] }}"
+        index_of_host: "{{ ansible_play_hosts.index(inventory_hostname) }}"
+        length_of_hosts: "{{ ansible_play_hosts | length }}"

@@ -1,12 +1,13 @@
 ---
 - name: "Remove the filter_band config!"
-  hosts: AP-17.local
+  hosts: active_sprawl_nodes
+  gather_facts: false
   tasks:
-    - name: "kill SC!"
+    - name: "Kill SC!"
       shell: killall sclang
 
-    - name: "kill SC!"
+    - name: "Kill SC!"
       shell: killall scsynth
 
-    - name: "kill trip!"
+    - name: "Kill JackTrip!"
       shell: killall jacktrip

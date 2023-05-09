@@ -1,0 +1,10 @@
+---
+- name: Change Password on all hosts
+  hosts: sprawl_nodes
+  become: yes
+  tasks:
+    - name: Change Password
+      ansible.builtin.user:
+        name: member
+        password: "{{ '123456' | password_hash('sha512') }}"
+        update_password: always
