@@ -1,4 +1,16 @@
-# Getting started with ansible
+# Getting started
+programs that should be installed:
+- [Ansible](https://www.ansible.com/)
+- [git](https://git-scm.com/)
+
+
+
+Clone the sprawl repo:
+```bash
+git clone git@github.com:ringbuffer-org/SPRAWL.git
+```
+
+
 ## hosts/inventory
 hosts file contains all hosts that can be accessed by playbooks.
 
