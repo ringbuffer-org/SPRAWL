@@ -37,6 +37,9 @@
                                 <a href=".." class="nav-link">Home</a>
                             </li>
                             <li class="navitem">
+                                <a href="../ansible_getting_started/" class="nav-link">Getting started</a>
+                            </li>
+                            <li class="navitem">
                                 <a href="../filter_band/" class="nav-link">Filter Band</a>
                             </li>
                             <li class="navitem active">
@@ -92,6 +95,20 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#initial-setup-of-pi" class="nav-link">Initial Setup of Pi</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#provisioning" class="nav-link">Provisioning</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#jacktrip-configuration" class="nav-link">Jacktrip Configuration</a>
+              <ul class="nav flex-column">
             <li class="nav-item" data-level="2"><a href="#roll-out-new-pieces" class="nav-link">Roll out (new) Pieces</a>
               <ul class="nav flex-column">
               </ul>
@@ -111,30 +128,26 @@
 <h2 id="user-hostname">User &amp; Hostname</h2>
 <ul>
 <li>
-<p>Every PI has the same user name?</p>
-<ul>
-<li>member</li>
-</ul>
+<p>Every PI has the same user name</p>
 </li>
 <li>
-<p>Every PI has an individual hostname?</p>
-<ul>
-<li>AP_x</li>
-</ul>
+<p>member</p>
 </li>
+<li>
+<p>Every PI has an individual hostname</p>
+</li>
+<li>AP_XX</li>
 </ul>
 <h2 id="network">Network</h2>
 <ul>
 <li>
-<p>Ethernet: switch with manual DHCP addresses.</p>
+<p>Ethernet: switch with router and DHCP, nodes can be reached via hostnam.</p>
 </li>
 <li>
 <p>Wireless: each PI opens an individual WiFi.</p>
-<ul>
+</li>
 <li>SSH enabled</li>
 <li>VNC/RDP enabled</li>
-</ul>
-</li>
 </ul>
 <h2 id="installed-software">Installed Software</h2>
 <ul>
@@ -147,37 +160,58 @@
 </li>
 <li>
 <p>SuperCollider</p>
-<ul>
-<li>sclang</li>
+</li>
+<li>
+<p>sclang</p>
+</li>
 <li>scsynth</li>
-<li>sc3-plugins</li>
-</ul>
+<li>
+<p>sc3-plugins</p>
 </li>
 <li>
 <p>PD (vanilla)</p>
 </li>
 <li>
 <p>Python3</p>
-<ul>
+</li>
 <li>python-osc</li>
 </ul>
-</li>
+<h1 id="initial-setup-of-pi">Initial Setup of Pi</h1>
+<p>Flash Rasperry Pi OS to a SD-Card, use these Settings in the RPi-Imager:</p>
+<ul>
+<li>set hostname: <code>AP-XX</code> (where <code>XX</code> is the associated number of the Pi)</li>
+<li>enable SSH, use password authentication</li>
+<li>set username and password</li>
+<li>Username: <code>member</code></li>
+<li>Password:</li>
+<li>set locale settings (optional)</li>
+</ul>
+<h2 id="provisioning">Provisioning</h2>
+<p>After boot, execute these playbooks to make it run</p>
+<pre><code class="language-bash">
+ansible-playbook pi_setup/playbooks/install_ssh_key.yml --ask-pass -e &quot;key=path/to/public/key&quot;
+
+ansible-playbook pi_setup/playbooks/full_setup.yml
+</code></pre>
+<h1 id="jacktrip-configuration">Jacktrip Configuration</h1>
+<p>Two options:</p>
+<ul>
+<li>One server on each PI, every PI has a client for each server (n Servers, n*n-1 clients)</li>
+<li>p2p connections between all PIs ((n*(n-1))/2 connections)</li>
 </ul>
 <h2 id="roll-out-new-pieces">Roll out (new) Pieces</h2>
 <p>Stuff for pieces in one directory only:</p>
 <pre><code>/home/member/pieces/piece_subdir
 </code></pre>
-<p>Tow options:</p>
+<p>Two options:</p>
 <ul>
 <li>Distribute code &amp; binaries via ssh (ansible).</li>
 <li>Grab all code (&amp; build binaries) via repositories (pull via ansible).</li>
 </ul>
 <h2 id="start-and-stop-pieces">Start and Stop Pieces</h2>
 <ul>
-<li>System needs to be back in plain state after each piece.<ul>
+<li>System needs to be back in plain state after each piece.</li>
 <li>provide 'kill' playbooks</li>
-</ul>
-</li>
 </ul></div>
             </div>
         </div>
