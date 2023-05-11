@@ -1,8 +1,8 @@
 ---
 - name: Shutdown all Raspberry Pi hosts
   hosts: sprawl_nodes
-  become: yes
-  
+  become: true
+
   tasks:
-  - name: Shut down hosts
-    command: shutdown -h now
+    - name: Shut down hosts
+      command: shutdown -h now
