@@ -28,7 +28,7 @@
         chdir: /home/member/pieces/delay_graph/SC
 
     - name: "Launch JackTrip Server"
-      shell: jacktrip -S -p5 >> /tmp/jacktrip_server.log
+      shell: jacktrip -S
       async: 2592000 # run for 1 month
       poll: 0
 

@@ -4,7 +4,7 @@
   connection: ssh
 
   tasks:
-    - name: Install public SSH
+    - name: Install public SSH key
       ansible.posix.authorized_key:
         user: member
         state: present

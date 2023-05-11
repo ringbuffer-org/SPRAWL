@@ -51,7 +51,9 @@ Flash Rasperry Pi OS to a SD-Card, use these Settings in the RPi-Imager:
 After boot, execute these playbooks to make it run
 
 ```bash
+
 ansible-playbook pi_setup/playbooks/install_ssh_key.yml --ask-pass -e "key=path/to/public/key"
+
 ansible-playbook pi_setup/playbooks/full_setup.yml
 ```
 

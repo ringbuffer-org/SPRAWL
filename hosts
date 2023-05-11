@@ -1,7 +1,14 @@
 [active_sprawl_nodes]
-AP-0[3:4].local ansible_user=member
-AP-0[6:9].local ansible_user=member
-AP-1[0:7].local ansible_user=member
+AP-03 ansible_user=member 
+AP-04 ansible_user=member 
+AP-05 ansible_user=member
+AP-07 ansible_user=member
+AP-08 ansible_user=member
+AP-09 ansible_user=member
+AP-10 ansible_user=member
+AP-14 ansible_user=member
+AP-15 ansible_user=member
+AP-16 ansible_user=member
 
 [sprawl_nodes]
 AP-01.local ansible_user=member

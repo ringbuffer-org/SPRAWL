@@ -84,6 +84,6 @@
         index_of_host: "{{ ansible_play_hosts.index(inventory_hostname) + 1 }}"
         source_port: "{{ item[3] }}"
         target_host_index: "{{ item[12] }}"
-        target_host: "{{ ansible_play_hosts[(target_host_index | int)-1] }}"
+        target_host: "{{ ansible_play_hosts[(target_host_index | int) - 1] }}"
         target_port: "{{ item[14] }}"
       when: graph['node' + index_of_host] is defined
