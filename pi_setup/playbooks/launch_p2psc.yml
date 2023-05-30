@@ -1,0 +1,10 @@
+---
+- name: Launch P2PSC
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+  - name: Launch script
+    shell: bash /home/member/scripts/p2psc_terminal.sh
+    async: 2592000
+    poll: 0
+

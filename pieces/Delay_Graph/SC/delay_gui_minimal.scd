@@ -1,8 +1,6 @@
 s.options.numInputBusChannels = 3;
 s.options.numOutputBusChannels = 3;
-s.boot;
 
-"started booting".postln;
 s.waitForBoot(
     Routine({
         "Starting Delay Setup".postln;

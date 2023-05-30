@@ -1,0 +1,10 @@
+---
+- name: "Kill round robin!"
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: "Kill SC!"
+      shell: killall sclang
+
+    - name: "Kill SC!"
+      shell: killall scsynth

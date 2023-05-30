@@ -1,0 +1,81 @@
+### P2PSC
+- name: Install dependencies p2psc
+  hosts: sprawl_nodes
+  become: true
+  tasks:
+  - name: Install dependencies
+    apt:
+      pkg:
+        - python3-pip
+      state: latest
+      update_cache: yes
+    tags:
+      - install
+      - apt
+- name: Install p2psc
+  hosts: sprawl_nodes
+  tasks:
+  - name: Install p2psc python dependencies
+    pip:
+      name:
+        - python-osc
+        - zeroconf
+      executable: pip3
+    tags:
+      - install
+      - pip
+
+  - name: Clone main
+    ansible.builtin.git:
+      repo: https://github.com/bontric/p2psc.git
+      dest: /home/{{ ansible_user_id }}/p2psc
+      single_branch: yes
+      version: main
+      update: yes
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /home/{{ ansible_user_id }}/scripts
+      state: directory
+      mode: '0755'
+  - name: Create script to start p2psc and Jack Audio
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/p2psc.sh
+      mode: 0755
+      content: |
+        #!/bin/bash
+        echo "Waiting for DHCP/AutoIP init..."
+        sleep 10;
+        PYTHONPATH=~/p2psc/ python3 ~/p2psc/p2psc/main.py -v
+  - name: Create script to start p2psc in a terminal
+    copy:
+      dest: /home/{{ ansible_user_id }}/scripts/p2psc_terminal.sh
+      mode: 0755
+      content: |
+        DISPLAY=:0 lxterminal --command="/home/{{ ansible_user_id }}/scripts/p2psc.sh" -t p2psc
+  - name: Create default config file
+    copy:
+      dest: /home/{{ ansible_user_id }}/.p2psc.conf
+      mode: 0664
+      content: |
+        {
+          "name": "{{ ansible_user_id }}",
+          "zeroconf": true,
+          "ip": null,
+          "port": 3760
+        }
+  - name: Create Supercollider config dir
+    ansible.builtin.file:
+      path: ~/.config/SuperCollider
+      state: directory
+      mode: '0755'
+  - name: Add p2psc library path
+    copy:
+      dest: ~/.config/SuperCollider/sclang_conf.yaml
+      mode: 0664
+      content: |
+        includePaths:
+            -    ~/p2psc/libs/sclang
+        excludePaths:
+            []
+        postInlineWarnings: false
+  

@@ -11,6 +11,6 @@ AP-15 ansible_user=member
 AP-16 ansible_user=member
 
 [sprawl_nodes]
-AP-01.local ansible_user=member
-AP-0[3:9].local ansible_user=member
-AP-1[0:7].local ansible_user=member
+AP-01 ansible_user=member
+AP-0[3:9] ansible_user=member
+AP-1[0:7] ansible_user=member
