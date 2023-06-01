@@ -11,7 +11,8 @@ p.addPath({ |msg|
 }, "/ping");
 )
 100+1000.rand()
-p.sendMsg("/ALL/ping", p.name)
+
+p.sendMsg("/ALL/huhuhu", "halo wie geht", 250)
 
 fork{
 	 ~peers = p.getPeers();
@@ -42,6 +43,7 @@ fork {
 fork {
 	var peer, peers;
 	peers = p.getPeers().select({ |item| item.beginsWith("AP") });
-	peers.post
+	peers.postln;
+	peers.size.postln;
 }
 )

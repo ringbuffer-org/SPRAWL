@@ -14,7 +14,7 @@ s.waitForBoot(
             var freq = 100 + 1000.rand; // Change this for every node
             msg.postln; //print message for debugging
 
-            {SinOsc.ar(freq:freq)*EnvGen.kr(Env.perc(releaseTime:sleeptime-0.01), doneAction:2)}.play;
+            {SinOsc.ar(freq:freq)*0.5*EnvGen.kr(Env.perc(releaseTime:sleeptime-0.01), doneAction:2)}.play;
             fork {
                 var nextpeer;
                 var source_peer = msg[1].asString;
