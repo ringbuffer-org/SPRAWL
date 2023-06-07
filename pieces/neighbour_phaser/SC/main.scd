@@ -1,27 +1,3 @@
-LanguageConfig.addIncludePath("C:/Users/J/TUB_local/repos/p2psc/libs/sclang")
-
-(
-~stream = {
-	arg fc = 1000, wet = 0.5, gain = 0.1;
-	var fft, centroid, dry;
-
-	dry = 1-wet;
-
-    // get the first input (left) channel to SC
-    var sig  = SoundIn.ar(0);
-	// var in = WhiteNoise.ar(); // replace this later
-
-    // output to first channel (left)
-    // Out.ar(0, in);
-
-
-
-
-
-	Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*dry) * gain);
-}.play;
-)
-
 (
 {
 	p = P2PSC();
