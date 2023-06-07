@@ -1,0 +1,37 @@
+---
+- name: "Start the piece neighbour phaser"
+  hosts: sprawl_nodes
+  gather_facts: true
+
+  tasks:
+    - name: "Ensure 'pieces' dir exists"
+      ansible.builtin.file:
+        path: /home/member/pieces/
+        state: directory
+        owner: member
+        group: member
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: "Copy Files onto the server"
+      copy:
+        src: SC
+        dest: /home/member/pieces/neighbour_phaser/
+        owner: member
+        group: member
+        mode: "0644"
+
+    - name: "Launch SC!"
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 sclang main.scd >> /tmp/neighbour_phaser.log
+      args:
+        chdir: /home/member/pieces/neighbour_phaser/SC
+
+    - name: "Sleepytime"
+      ansible.builtin.wait_for:
+        timeout: 5
+        # port: 57110
+
+
+    - name: "Jack Connect"
+      shell: "jack_connect SuperCollider:out_1 system:playback_1"
