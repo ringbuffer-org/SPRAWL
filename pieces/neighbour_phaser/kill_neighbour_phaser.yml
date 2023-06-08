@@ -1,0 +1,10 @@
+---
+- name: "Kill neighbour phaser"
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: "Kill SClang!"
+      shell: killall sclang
+
+    - name: "Kill SCsynth!"
+      shell: killall scsynth
