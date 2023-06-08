@@ -24,7 +24,7 @@
           - python3-pip
           - git
           - puredata
-	  - aj-snapshot
+          - aj-snapshot
 
         state: latest
         update_cache: true
