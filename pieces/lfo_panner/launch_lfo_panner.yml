@@ -1,0 +1,17 @@
+---
+- name: Start LFO Panner Supercollider
+  ansible.builtin.import_playbook: lfo_panner_supercollider.yml
+
+- name: Setup Jacktrip Mesh
+  ansible.builtin.import_playbook: lfo_panner_jacktrip.yml
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: Setup Connections
+  ansible.builtin.import_playbook: lfo_panner_connect.yml
