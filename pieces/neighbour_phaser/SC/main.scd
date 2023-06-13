@@ -1,3 +1,4 @@
+s.waitForBoot
 (
 {
 	p = P2PSC();
@@ -7,31 +8,23 @@
 	s.sync();
 
 	p.addPath({ |msg|
-
-		// get centroid from message
-		var fc = msg[2], wet = 0.5, gain = 0.1;
-		var fft, centroid, dry;
-		// get local input sound
-		var sig  = SoundIn.ar(0);
-		dry = 1-wet;
-		fc.postln;
-		//var sleeptime = 1;
-        msg.postln; //print message for debugging
-
-
-
-		// calc centroid
-		fft = FFT(LocalBuf(2048), sig);
-		centroid = SpecCentroid.kr(fft);
-
-		// mix dry/wet filtered sound
-		{Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*dry) * gain)}.play;
+		var sig;
+		{
+			// get centroid from message
+			var fc = msg[2], wet = 0.5, gain = 0.1;
+			sig  = SoundIn.ar(0);
+			dry = 1-wet;
+			Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*dry) * gain)}.play;
 
         fork {
+			var fft, centroid, dry;
+			// calc centroid
+			fft = FFT(LocalBuf(2048), sig);
+			centroid = SpecCentroid.kr(fft);
             var nextpeer;
             var source_peer = msg[1].asString;
             var peers = p.getPeers().select({ |item| item.beginsWith("AP") });
-            //sleeptime.wait; // wait for one second
+            //sleeptime.wait;
 
             // send to the next peer in our list
             nextpeer = peers.wrapAt(1+peers.indexOfEqual(source_peer));
