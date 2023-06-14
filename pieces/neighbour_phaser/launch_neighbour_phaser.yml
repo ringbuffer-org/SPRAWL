@@ -1,4 +1,7 @@
 ---
+- name: "start P2PSC"
+  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_p2psc.yml
+
 - name: "Start the piece neighbour phaser"
   hosts: sprawl_nodes
   gather_facts: true

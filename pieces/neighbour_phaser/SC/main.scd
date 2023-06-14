@@ -48,13 +48,13 @@ s.waitForBoot
     }.fork;
 );
 
-(
+// (
 // local sound routine, streams I to O with dry/wet bandpass
-~stream = { arg fc = 1000; // center freq of bandpass
-	var wet = 0.5, gain = 0.8, sig = SoundIn.ar(0);
-	// Out.ar(0, sig * gain);
-	Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*(1-wet)) * gain)
-}.play;
-)
+// ~stream = { arg fc = 1000; // center freq of bandpass
+// 	var wet = 0.5, gain = 0.8, sig = SoundIn.ar(0);
+// 	// Out.ar(0, sig * gain);
+// 	Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*(1-wet)) * gain)
+// }.play;
+// )
 
-{ [SinOsc.ar(440, 0, 0.2), SinOsc.ar(442, 0, 0.2)] }.play;
+// { [SinOsc.ar(440, 0, 0.2), SinOsc.ar(442, 0, 0.2)] }.play;
