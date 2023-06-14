@@ -1,8 +1,5 @@
-s.boot
-s.waitForBoot
-(
-~routine = {
-	// new P2PSC instnce
+s.waitForBoot(
+{
 	p = P2PSC();
 	// get own hostname and set it
 	~hostname = Pipe.new("hostname", "r").getLine;

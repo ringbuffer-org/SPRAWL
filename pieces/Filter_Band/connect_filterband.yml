@@ -1,6 +1,6 @@
 ---
 - name: Start fully connected Jacktrip Mesh
-  hosts: active_sprawl_nodes
+  hosts: really_active_sprawl_nodes
   gather_facts: false
 
   tasks:
@@ -10,7 +10,7 @@
         jack_connect {{item}}:receive_1 SuperCollider:in_1
         jack_connect SuperCollider:out_1 system:playback_1
         jack_connect system:capture_1  {{item}}:send_1
-      loop: "{{ groups['active_sprawl_nodes'] | difference([inventory_hostname]) }}"
+      loop: "{{ groups['really_active_sprawl_nodes'] | difference([inventory_hostname]) }}"
       loop_control:
         index_var: index
 
