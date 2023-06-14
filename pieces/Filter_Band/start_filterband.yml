@@ -1,0 +1,56 @@
+---
+- name: Start fully connected Jacktrip Mesh
+  hosts: active_sprawl_nodes
+  gather_facts: false
+
+  tasks:
+
+    - name: "Ensure 'pieces' dir exists"
+      ansible.builtin.file:
+        path: /home/member/pieces/
+        state: directory
+        owner: member
+        group: member
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: "Copy Files onto the server"
+      ansible.builtin.copy:
+        src: SC
+        dest: /home/member/pieces/filter_band
+        owner: member
+        group: member
+        mode: "0644"
+
+    - name: "Launch SC!"
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 sclang start_filterband.scd
+      args:
+        chdir: /home/member/pieces/filter_band/SC
+
+    # - name: Ping all other hosts
+    #   ansible.builtin.debug:
+    #     msg: "ping {{item}}"
+    #   loop: "{{groups['sprawl_nodes'] | difference([inventory_hostname])}}"
+    - name: Kill all JackTrip things
+      command: killall jacktrip
+      ignore_errors: true
+
+    - name: "Launch JackTrip Server"
+      shell: jacktrip -S -p5
+      async: 2592000 # run for 1 month
+      poll: 0
+
+    - name: "Launch lots of JackTrip clients"
+      # create connection to server with the name
+      shell: jacktrip -n 1 -C {{ item }} -K {{ inventory_hostname }} -J {{ item }} -B {{ base_port + index }}
+      async: 2592000 # run for 1 month
+      poll: 0
+      loop: "{{ groups['active_sprawl_nodes'] | difference([inventory_hostname]) }}"
+      loop_control:
+        index_var: index
+      when: "{{index < groups['active_sprawl_nodes'].index(inventory_hostname) }}"
+
+
+  vars:
+    base_port: 4464

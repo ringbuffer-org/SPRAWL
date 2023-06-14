@@ -1,0 +1,32 @@
+---
+- name: Start fully connected Jacktrip Mesh
+  hosts: active_sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: Kill all JackTrip things
+      command: killall jacktrip
+      ignore_errors: true
+    - name: "Launch JackTrip Server"
+      shell: jacktrip -S -p5
+      async: 2592000 # run for 1 month
+      poll: 0
+    - name: "Launch lots of JackTrip clients"
+      # create connection to server with the name
+      shell: jacktrip -n 1 -C {{ item }} -K {{ inventory_hostname }} -J {{ item }} -B {{ base_port + index }}
+      async: 2592000 # run for 1 month
+      poll: 0
+      loop: "{{ groups['active_sprawl_nodes'] | difference([inventory_hostname]) }}"
+      loop_control:
+        index_var: index
+      when: "{{index < groups['active_sprawl_nodes'].index(inventory_hostname) }}"
+
+    - name: "Connect to system ins/outs"
+      ansible.builtin.shell: |
+        jack_connect {{item}}:receive_1 system:playback_1
+        jack_connect system:capture_1 {{item}}:send_1
+      loop: "{{ groups['active_sprawl_nodes'] | difference([inventory_hostname]) }}"
+      loop_control:
+        index_var: index
+
+  vars:
+    base_port: 4464
