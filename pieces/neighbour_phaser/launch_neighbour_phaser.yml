@@ -1,6 +1,6 @@
 ---
 - name: "Start the piece neighbour phaser"
-  hosts: sprawl_nodes
+  hosts: really_active_sprawl_nodes
   gather_facts: true
 
   tasks:
@@ -34,4 +34,6 @@
 
 
     - name: "Jack Connect"
-      shell: "jack_connect SuperCollider:out_1 system:playback_1"
+      shell: |
+        jack_connect SuperCollider:out_1 system:playback_1
+        jack_connect system:capture_1 SuperCollider:in_1

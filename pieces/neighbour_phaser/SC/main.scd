@@ -1,4 +1,4 @@
-(
+s.waitForBoot(
 {
 	p = P2PSC();
 	~hostname = Pipe.new("hostname", "r").getLine;
