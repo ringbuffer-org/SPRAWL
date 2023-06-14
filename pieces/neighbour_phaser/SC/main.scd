@@ -8,8 +8,8 @@ s.waitForBoot(
 	~hostname.post;
 	// sync node
 	p.sync();
-
-
+	"test".postln;
+	p.getPeers().select({ |item| item.beginsWith("AP") }).postln;
 
 	// define P2PSC communication routine
 	p.addPath({arg msg;
