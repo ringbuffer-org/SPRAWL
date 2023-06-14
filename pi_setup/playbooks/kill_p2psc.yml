@@ -1,0 +1,10 @@
+---
+- name: Kill P2PSC
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+  - name: Kill script
+    shell: killall lxterminal
+    async: 2592000
+    poll: 0
+
