@@ -1,9 +1,8 @@
-~n_chan = 15;
+~n_chan = 14;
 s.options.numOutputBusChannels = ~n_chan;
 s.options.numInputBusChannels = 1;
-s.boot;
-s.doWhenBooted(
-    Routine({
+s.waitForBoot(
+    {
         "starting panner setup".postln;
         // Route input to outputs
         ~panner = {
@@ -34,5 +33,5 @@ s.doWhenBooted(
             ~window.fullScreen();
         }.defer;
 
-    }).play;
+    };
     , onFailure: {"[ERROR] failed to start the main routine".postln});

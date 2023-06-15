@@ -1,0 +1,12 @@
+---
+- name: Disable WiFi Access Point
+  hosts: sprawl_nodes
+  become: true
+  tasks:
+    - name: Enable hostapd service
+      ansible.builtin.systemd:
+        name: hostapd
+        enabled: false
+        masked: false
+    - name: Reboot after
+      ansible.builtin.reboot:

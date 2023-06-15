@@ -2,6 +2,7 @@
 - name: Shutdown all Raspberry Pi hosts
   hosts: sprawl_nodes
   become: true
+  gather_facts: false
 
   tasks:
     - name: Shut down hosts
