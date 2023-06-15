@@ -25,7 +25,7 @@
     - name: "Kill SC!"
       shell: killall scsynth
       ignore_errors: true
-      
+
     - name: "Launch SC!"
       async: 2592000 # run for 1 month
       poll: 0
