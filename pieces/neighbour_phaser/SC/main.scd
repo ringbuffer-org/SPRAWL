@@ -20,12 +20,10 @@ s.waitForBoot(
 	}.play;
 
 	~sender = {
-		// get list of all peers
-		var peers = p.getPeers().select({ |item| item.beginsWith("AP") });
 		// define next peer and self
 		var nextpeer;
 		// send to the next peer in our list
-		nextpeer = peers.wrapAt(1+peers.indexOfEqual(p.name));
+		nextpeer = ps.wrapAt(1+ps.indexOfEqual(p.name));
 		// send message to next peer with "np" identifier and the centroid
 		p.sendMsg("/"++nextpeer++"/np", In.kr(b).asString)
 	}.play;
@@ -38,9 +36,6 @@ s.waitForBoot(
 		// calc spectral centroid
 		centroid = SpecCentroid.kr(fft);
 		Out.kr(b, centroid);
-
-		//sleeptime.wait;
-		
 	}.play;
 
 		// see https://github.com/ringbuffer-org/SPRAWL/blob/main/pieces/Delay_Graph/SC/delay_gui.scd
@@ -49,8 +44,8 @@ s.waitForBoot(
 	p.addPath({arg msg;
 		// change center freq of audio
 		~stream.set(\fc, msg[1].sFloat);
-		}, "/np");
-    };
+	}, "/np");
+};
 );
 )
 
