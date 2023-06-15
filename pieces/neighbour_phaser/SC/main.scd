@@ -11,7 +11,7 @@ s.waitForBoot(
 	p.sync();
 	ps = p.getPeers().select({ |item| item.beginsWith("AP") });
 	ps.postln;
-	b = bus.control(s(1));
+	b = bus.control(s, 1);
 
 	// local sound player, streams I to O with dry/wet bandpass
 	~stream = { arg fc = 1000; // center freq of bandpass
