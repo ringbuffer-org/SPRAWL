@@ -18,7 +18,14 @@
         owner: member
         group: member
         mode: "0644"
+    - name: "Kill SC!"
+      shell: killall sclang
+      ignore_errors: true
 
+    - name: "Kill SC!"
+      shell: killall scsynth
+      ignore_errors: true
+      
     - name: "Launch SC!"
       async: 2592000 # run for 1 month
       poll: 0
