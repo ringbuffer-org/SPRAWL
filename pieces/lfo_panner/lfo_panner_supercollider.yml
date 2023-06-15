@@ -1,6 +1,6 @@
 ---
 - name: Start Supercollider
-  hosts: active_sprawl_nodes
+  hosts: sprawl_nodes
   gather_facts: false
   tasks:
     - name: "Ensure 'pieces' dir exists"
