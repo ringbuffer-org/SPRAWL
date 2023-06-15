@@ -9,9 +9,9 @@ s.waitForBoot(
 	~hostname.post;
 	// sync node
 	p.sync();
-	ps = p.getPeers().select({ |item| item.beginsWith("AP") });
-	ps.postln;
-	b = bus.control(s, 1);
+	~ps = p.getPeers().select({ |item| item.beginsWith("AP") });
+	~ps.postln;
+	b = Bus.control(s, 1);
 
 	// local sound player, streams I to O with dry/wet bandpass
 	~stream = { arg fc = 1000; // center freq of bandpass
@@ -23,7 +23,7 @@ s.waitForBoot(
 		// define next peer and self
 		var nextpeer;
 		// send to the next peer in our list
-		nextpeer = ps.wrapAt(1+ps.indexOfEqual(p.name));
+		nextpeer = ~ps.wrapAt(1+~ps.indexOfEqual(~hostname));
 		// send message to next peer with "np" identifier and the centroid
 		p.sendMsg("/"++nextpeer++"/np", In.kr(b).asString)
 	}.play;
