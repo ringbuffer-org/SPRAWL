@@ -94,6 +94,10 @@ class VideoItem(QQuickPaintedItem):
     def set_pan_override(self, value):
         self.vt.set_pan_override(value)
 
+    @pyqtSlot(bool)
+    def set_auto_circ_pan(self, value):
+        self.vt.set_auto_circ_pan(value)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 

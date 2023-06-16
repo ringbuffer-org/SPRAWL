@@ -168,6 +168,13 @@ ApplicationWindow {
                     videoItem.set_pan_override(checked)
                 }
             }
+            CheckBox {
+                checked: false
+                text: qsTr("Auto circle panning")
+                onClicked: {
+                    videoItem.set_auto_circ_pan(checked)
+                }
+            }
         }
 
         // Rectangle {

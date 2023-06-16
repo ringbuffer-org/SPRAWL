@@ -8,6 +8,7 @@ s.waitForBoot(
     {
         ~numInputs = 16; // set to correct number of channels
         ~netAverage = 0.0;
+        ~delay = 2;
         
         ~f = Buffer.alloc(s,1024,2);
 
@@ -24,7 +25,6 @@ s.waitForBoot(
 
             // Create a lowpass filter
             var filterOutput = LPF.ar(Mix.new(scaledInputs), cutoffFreq, vol);
-            var verbedOutput = FreeVerb.ar(filterOutput, 0.5, delay, 0.5);
 
             // Connect the filtered output to a SuperCollider audio output bus
             Out.ar(0, filterOutput);
@@ -48,17 +48,17 @@ s.waitForBoot(
             // ScopeView
             ~text_scope = StaticText(~window, Rect(10, 10, 780, 20)).string = "Mix result";
             // ~scopeView = ScopeView(~window, Rect(10,10,500,300));
-            ~scopeView = ScopeView(~window, Rect(10,40,780,400));
+            ~scopeView = ScopeView(~window, Rect(10,40,500,400));
             ~scopeView.server = s;
             ~scopeView.canFocus = true;
             ~scopeView.bufnum = ~f.bufnum;
             ~scopeView.start;
 
-            ~text_gains = StaticText(~window, Rect(10, 460, 780, 20)).string = "lol";
+            ~text_gains = StaticText(~window, Rect(10, 460, 780, 20)).string = "";
 
             // Monitor slider
-			// ~slider_pan_speed = Slider(~window, Rect(600, 110, 150, 320));
-            // ~text_pan_speed = TextField(~window, Rect(600, 440, 150, 30)).string = "Mon.gain: 0.2";
+			~slider_pan_speed = Slider(~window, Rect(600, 110, 150, 320));
+            ~text_pan_speed = StaticText(~window, Rect(600, 440, 150, 30)).string = "Mon.gain: 0.2";
 
 			~window.front; 
         // }.defer;});
@@ -101,7 +101,7 @@ s.waitForBoot(
             msg.postln; //print message for debugging
 
             //{SinOsc.ar(freq:freq)*0.5*EnvGen.kr(Env.perc(releaseTime:sleeptime-0.01), doneAction:2)}.play;
-            {LFTri.ar(freq: freq) * vol * EnvGen.kr(Env.perc(releaseTime: sleeptime - 0.01), doneAction: 2)}.play;
+            {FreeVerb.ar(LFTri.ar(freq: freq) * vol * EnvGen.kr(Env.perc(releaseTime: sleeptime - 0.01), doneAction: 2), 0.5, ~delay, 0.5)}.play;
             ~text_gains.string = msg.asString;
         },"/synth"
         );
@@ -113,7 +113,8 @@ s.waitForBoot(
             var vol = msg[2].asFloat/100.0;
             var gains = msg.drop(3).round(0.001);
 
-            gains.round(0.001).postln; //print message for debugging
+            // gains.round(0.001).postln; //print message for debugging
+            ~delay = delay;
 
             ~filterMixBlock.set(\vol, vol);
             ~filterMixBlock.set(\gains, gains);
@@ -122,7 +123,7 @@ s.waitForBoot(
 
             // ~gui.set(\gains, gains);
             {~text_gains.string = gains.round(0.1);
-            // ~slider_pan_speed.value = vol;
+            ~slider_pan_speed.value = vol;
             }.defer;
 
         },"/shiftmix"

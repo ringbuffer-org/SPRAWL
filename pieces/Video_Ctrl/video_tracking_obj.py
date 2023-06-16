@@ -55,6 +55,8 @@ class VideoTracking():
         self.sigma = 1
         self.mod_volume = False
         self.pan_override = False
+        self.auto_circ_pan = False
+        self.auto_pan_val = 0.0
 
     def connect(self):
         self.send_osc_msg(self.transport, ["/p2psc/peerinfo", [1, "T1 T2", "/test1 /test2"]])
@@ -114,7 +116,18 @@ class VideoTracking():
                 # self.send_osc_msg(self.transport, ["/ALL/shiftmix", [circ_x_perc, circ_y_perc, rad_perc]])
                 #print(f"Sending OSC msg: {circ_x_perc}, {circ_y_perc}, {rad_perc}")
 
-                new_vols = self.get_vol_distr(len(self.nodes), (circ_x_perc/100.0 if self.pan_override == False else self.smoothing))
+                # Calculate new volume distribution
+                if (self.auto_circ_pan == True):
+                    pan_val = self.auto_pan_val + 0.01
+                    if (pan_val > 1.0):
+                        pan_val = 0.0
+                    self.auto_pan_val = pan_val
+                elif (self.pan_override == True):
+                    pan_val = self.smoothing
+                else:
+                    pan_val = circ_x_perc/100.0
+
+                new_vols = self.get_vol_distr(len(self.nodes), pan_val)
 
                 # Debug option
                 # new_vols = self.get_vol_distr(4, (circ_x_perc/100.0 if self.pan_override == False else self.smoothing))
@@ -165,6 +178,10 @@ class VideoTracking():
     def set_pan_override(self, val):
         print(f"Setting pan override: {val}")
         self.pan_override = val
+
+    def set_auto_circ_pan(self, val):
+        print(f"Setting auto circ pan: {val}")
+        self.auto_circ_pan = val
 
     def osc_message(self, path, args):
         mb = OscMessageBuilder(path)
