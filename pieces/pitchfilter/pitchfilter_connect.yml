@@ -1,0 +1,24 @@
+---
+- name: Setup Jack Connections
+  hosts: sprawl_nodes
+  gather_facts: false
+  vars: 
+    master_node: AP-09
+  tasks:
+    - name: Connect local ins/outs
+      shell: |
+        jack_connect system:capture_1 SuperCollider:in_1
+        jack_connect system:capture_2 SuperCollider:in_1
+        jack_connect master_node:reveive_1 SuperCollider:in_2
+      when: master_node != inventory_hostname
+
+    - name: Connect jacktrip clients
+      
+      shell: |
+        jack_connect system:out_1 {{ item }}:send_1
+        jack_connect system:out_2 {{ item }}:send_1
+
+      loop: "{{ sprawl_nodes | difference([inventory_hostname]) }}"
+      when: master_node == inventory_hostname
+
+
