@@ -22,7 +22,7 @@ class VideoTracking():
     async def init(self):
         # Create the UDP socket
         self.transport, _ = await asyncio.get_event_loop().create_datagram_endpoint(
-            lambda: OscProtocolUdp(self), local_addr=('0.0.0.0', 57120), remote_addr=("127.0.0.1", 3765))
+            lambda: OscProtocolUdp(self), local_addr=('0.0.0.0', 57121), remote_addr=("127.0.0.1", 3765))
 
         # Register with the P2PSC
         self.connect()
@@ -81,6 +81,7 @@ class VideoTracking():
 
                 # Calc number of white pixels
                 white_pixels = cv2.countNonZero(frame_dilated)
+
                 # print('white pixels:', white_pixels)
 
                 # do canny edge detection

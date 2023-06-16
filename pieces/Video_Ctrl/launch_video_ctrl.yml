@@ -5,6 +5,26 @@
   vars:
 
   tasks:
+    - name: "Kill SC!"
+      shell: killall sclang
+      ignore_errors: true
+
+    - name: "Kill SC!"
+      shell: killall scsynth
+
+      ignore_errors: true
+
+    - name: "Kill JackTrip!"
+      shell: killall jacktrip
+      ignore_errors: true
+    - name: Restart jackd service
+      ansible.builtin.systemd:
+        # daemon_reload: true
+        service: jackd.service
+        state: restarted
+        scope: user
+      become: false
+
     - name: "Ensure 'pieces' dir exists"
       ansible.builtin.file:
         path: /home/member/pieces/
@@ -49,12 +69,12 @@
       ansible.builtin.wait_for:
         timeout: 5
 
-    - name: Connect local ins/outs
+    - name: "Connect local ins/outs"
       shell: |
         jack_connect system:capture_1 SuperCollider:in_1
         jack_connect SuperCollider:out_1 system:playback_1
 
-    - name: Connect jacktrip clients
+    - name: "Connect jacktrip clients"
       shell: |
         jack_connect {{ item }}:receive_1 SuperCollider:in_{{ index+2 }}
         jack_connect system:capture_1 {{ item }}:send_1

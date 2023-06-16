@@ -1,14 +1,16 @@
-"SC_JACK_DEFAULT_INPUTS".setenv("REAPER");
+//"SC_JACK_DEFAULT_INPUTS".setenv("REAPER");
 //s.options.bindAddress = "0.0.0.0"; // allow connections from any address
 s.options.numInputBusChannels = 16; // set to correct number of channels
 s.options.numOutputBusChannels = 2; // set to correct number of channels
-s.options.maxLogins = 6; // set to correct number of clients
+// s.options.maxLogins = 6; // set to correct number of clients
 s.boot;
 s.waitForBoot(
     {
         ~numInputs = 16; // set to correct number of channels
         ~netAverage = 0.0;
+        
         ~f = Buffer.alloc(s,1024,2);
+
 
         // Create the filterMix block
         ~filterMixBlock = {
@@ -33,15 +35,15 @@ s.waitForBoot(
 		p = P2PSC();
 		~hostname = Pipe.new("hostname", "r").getLine;
 		p.setName(~hostname); // set your name accordingly
-		~hostname.post;
+		~hostname.postln;
 		s.sync();
 
         // Setups GUI
-        ~gui = {
-            |gains|
+        // Routine(
+		// {{
 			~window = Window(bounds:800@480).front().background_(Color.white);
 
-			// ~window.fullScreen;
+			~window.fullScreen;
 
             // ScopeView
             ~text_scope = StaticText(~window, Rect(10, 10, 780, 20)).string = "Mix result";
@@ -52,25 +54,16 @@ s.waitForBoot(
             ~scopeView.bufnum = ~f.bufnum;
             ~scopeView.start;
 
-            ~text_gains = StaticText(~window, Rect(10, 460, 780, 20)).string = "";
+            ~text_gains = StaticText(~window, Rect(10, 460, 780, 20)).string = "lol";
 
             // Monitor slider
 			// ~slider_pan_speed = Slider(~window, Rect(600, 110, 150, 320));
             // ~text_pan_speed = TextField(~window, Rect(600, 440, 150, 30)).string = "Mon.gain: 0.2";
 
-			~window.front;
+			~window.front; 
+        // }.defer;});
 
-            
-
-            inf.do {
-                // Update the text
-                ~text_gains.string = gains.asString;
-                // Wait for a specific duration before updating again
-                1.wait;
-            }
-
-		}.play;
-
+        "Start listening for pings".postln;
 		p.addPath({ |msg|
 
 			var sleeptime = 1;
@@ -93,26 +86,44 @@ s.waitForBoot(
                 // send to the next peer in our list
                 nextpeer = peers.wrapAt(1+peers.indexOfEqual(source_peer));
 
-                p.sendMsg("/"++nextpeer++"/ping", p.name)
+                p.sendMsg("/"++nextpeer++"/ping", p.name);
             };
 
         },"/ping"
         );
 
+        "Start listening for synth inputs".postln;
+		p.addPath({ |msg|
+
+			var sleeptime = 1;
+            var freq = msg[1].asFloat;
+            var vol = (5 + 95.rand)/100.0;
+            msg.postln; //print message for debugging
+
+            //{SinOsc.ar(freq:freq)*0.5*EnvGen.kr(Env.perc(releaseTime:sleeptime-0.01), doneAction:2)}.play;
+            {LFTri.ar(freq: freq) * vol * EnvGen.kr(Env.perc(releaseTime: sleeptime - 0.01), doneAction: 2)}.play;
+            ~text_gains.string = msg.asString;
+        },"/synth"
+        );
+
+        "Start listening for shiftmix updates".postln;
         p.addPath({ |msg|
             var cutoffFreq = 20000*msg[1].asFloat/100.0;
             var delay = 2*msg[1].asFloat/100.0;
             var vol = msg[2].asFloat/100.0;
-            var gains = msg.drop(3);
+            var gains = msg.drop(3).round(0.001);
 
-            msg.postln; //print message for debugging
+            gains.round(0.001).postln; //print message for debugging
 
             ~filterMixBlock.set(\vol, vol);
             ~filterMixBlock.set(\gains, gains);
             ~filterMixBlock.set(\cutoffFreq, cutoffFreq);
             ~filterMixBlock.set(\delay, delay);
 
-            ~gui.set(\gains, gains);
+            // ~gui.set(\gains, gains);
+            {~text_gains.string = gains.round(0.1);
+            // ~slider_pan_speed.value = vol;
+            }.defer;
 
         },"/shiftmix"
         );
