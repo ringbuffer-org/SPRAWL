@@ -6,8 +6,9 @@ import VideoItem 1.0
 
 ApplicationWindow {
     width: 640
-    height: 600
+    height: 680
     visible: true
+    title: qsTr("Camera OSC interaction")
 
     // Handle keyboard interrupt
     onClosing: {
@@ -39,11 +40,12 @@ ApplicationWindow {
 
             Label {
                 text: "Threshold: " + slider1.value.toFixed(0)
+                width: 120
             }
 
             Slider {
                 id: slider1
-                width: parent.width / 2
+                width: 300
                 from: 0
                 to: 255
                 value: 50
@@ -55,13 +57,15 @@ ApplicationWindow {
             id: rowSlider2
             anchors.left: parent.left
             anchors.top: rowSlider1.bottom
+            anchors.margins: 10
 
             Label {
                 text: "Smoothing: " + slider2.value.toFixed(0)
+                width: 120
             }
             Slider {
                 id: slider2
-                width: parent.width / 2
+                width: 300
                 from: 0
                 to: 100
                 value: 50
@@ -73,13 +77,15 @@ ApplicationWindow {
             id: rowSlider3
             anchors.top: rowSlider2.bottom
             anchors.left: parent.left
+            anchors.margins: 10
 
             Label {
                 text: "Update ms: " + slider3.value.toFixed(0)
+                width: 120
             }
             Slider {
                 id: slider3
-                width: parent.width / 2
+                width: 300
                 from: 0
                 to: 1000
                 value: 30
@@ -91,13 +97,15 @@ ApplicationWindow {
             id: rowSlider4
             anchors.top: rowSlider3.bottom
             anchors.left: parent.left
+            anchors.margins: 10
 
             Label {
                 text: "Mix spread: " + slider4.value.toFixed(0)
+                width: 120
             }
             Slider {
                 id: slider4
-                width: parent.width / 2
+                width: 300
                 from: 1
                 to: 100
                 value: 10
@@ -109,6 +117,7 @@ ApplicationWindow {
             id: textBox1
             anchors.top: videoItem.bottom
             anchors.right: parent.right
+            anchors.margins: 10
             width: parent.width
             text: "/ALL/ping"
             placeholderText: "Enter OSC path"
@@ -124,6 +133,7 @@ ApplicationWindow {
             id: textBox2
             anchors.top: textBox1.bottom
             anchors.right: parent.right
+            anchors.margins: 10
             width: parent.width
             placeholderText: "Enter OSC msg"
             text: "60,60,60"
@@ -138,21 +148,36 @@ ApplicationWindow {
         }
 
         // Button
-        Button {
-            id: toggleButton
+        // Button {
+        //     id: toggleButton
+        //     anchors.top: textBox2.bottom
+        //     anchors.right: parent.right
+        //     anchors.margins: 10
+        //     text: "Toggle"
+        //     onClicked: {
+        //         // Handle button click event
+        //         console.log("Button clicked")
+        //         videoItem.toggle_mode()
+        //     }
+        // }
+        CheckBox {
+            id: chechbox0
             anchors.top: textBox2.bottom
             anchors.right: parent.right
-            text: "Toggle"
+            anchors.margins: 10
+
+            checked: true
+            text: qsTr("Send shifts")
             onClicked: {
-                // Handle button click event
-                console.log("Button clicked")
-                videoItem.toggle_mode()
+                videoItem.set_sending_shifts(checked)
             }
         }
 
         RowLayout {
-            id: checkboxRow
+            id: checkboxRow1
             anchors.top: toggleButton.bottom
+            anchors.left: parent.left
+            anchors.margins: 10
             CheckBox {
                 checked: false
                 text: qsTr("Mod volume")
@@ -170,9 +195,29 @@ ApplicationWindow {
             }
             CheckBox {
                 checked: false
+                text: qsTr("Cutoff override")
+                onClicked: {
+                    videoItem.set_cutoff_override(checked)
+                }
+            }
+        }
+        RowLayout {
+            id: checkboxRow2
+            anchors.top: checkboxRow1.bottom
+            anchors.left: parent.left
+            anchors.margins: 10
+            CheckBox {
+                checked: false
                 text: qsTr("Auto circle panning")
                 onClicked: {
                     videoItem.set_auto_circ_pan(checked)
+                }
+            }
+            CheckBox {
+                checked: false
+                text: qsTr("Camera arp")
+                onClicked: {
+                    videoItem.set_camera_arp(checked)
                 }
             }
         }

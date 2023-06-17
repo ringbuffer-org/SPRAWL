@@ -1,4 +1,4 @@
-//"SC_JACK_DEFAULT_INPUTS".setenv("REAPER");
+"SC_JACK_DEFAULT_INPUTS".setenv("REAPER");
 //s.options.bindAddress = "0.0.0.0"; // allow connections from any address
 s.options.numInputBusChannels = 16; // set to correct number of channels
 s.options.numOutputBusChannels = 2; // set to correct number of channels
@@ -8,14 +8,16 @@ s.waitForBoot(
     {
         ~numInputs = 16; // set to correct number of channels
         ~netAverage = 0.0;
-        ~delay = 2;
+        ~scale_bools = [1, 1, 1, 1, 1];
         
-        ~f = Buffer.alloc(s,1024,2);
+        ~ownBus = Bus.new('audio', 18, 1, s);
+        ~f1 = Buffer.alloc(s,1024,2);
+        ~f2 = Buffer.alloc(s,1024,2);
 
 
         // Create the filterMix block
         ~filterMixBlock = {
-            |cutoffFreq = 20000, vol = 1, delay = 2, gains = #[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]|
+            |cutoffFreq = 20000, vol = 1, gains = #[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]|
 
             // Create an array to hold the input signals
             var inputSignals = Array.fill(~numInputs, { |i| SoundIn.ar(i) });
@@ -28,8 +30,16 @@ s.waitForBoot(
 
             // Connect the filtered output to a SuperCollider audio output bus
             Out.ar(0, filterOutput);
-            ScopeOut2.ar(filterOutput, ~f.bufnum);
+            ScopeOut2.ar(filterOutput, ~f2.bufnum);
+            
         
+        }.play;
+
+        ~nodeMix = {
+            |delay = 0.5|
+            Out.ar(~ownBus, SoundIn.ar(0));
+            Out.ar(1, FreeVerb.ar(In.ar(~ownBus), 0.5, delay, 1-delay));
+            ScopeOut2.ar(In.ar(~ownBus), ~f1.bufnum);
         }.play;
 
 		p = P2PSC();
@@ -43,22 +53,58 @@ s.waitForBoot(
 		// {{
 			~window = Window(bounds:800@480).front().background_(Color.white);
 
-			~window.fullScreen;
+            if (~hostname.beginsWith("AP")) {
+			    ~window.fullScreen;
+            };
 
             // ScopeView
-            ~text_scope = StaticText(~window, Rect(10, 10, 780, 20)).string = "Mix result";
+            ~text_scope1 = StaticText(~window, Rect(10, 5, 245, 20)).string = "Own input";
             // ~scopeView = ScopeView(~window, Rect(10,10,500,300));
-            ~scopeView = ScopeView(~window, Rect(10,40,500,400));
-            ~scopeView.server = s;
-            ~scopeView.canFocus = true;
-            ~scopeView.bufnum = ~f.bufnum;
-            ~scopeView.start;
+            ~scopeView1 = ScopeView(~window, Rect(10,30,500,180));
+            ~scopeView1.server = s;
+            // ~scopeView.canFocus = true;
+            ~scopeView1.bufnum = ~f1.bufnum;
+            ~scopeView1.start;
 
-            ~text_gains = StaticText(~window, Rect(10, 460, 780, 20)).string = "";
+            ~text_scope2 = StaticText(~window, Rect(10, 215, 245, 20)).string = "Mix result";
+            // ~scopeView = ScopeView(~window, Rect(10,10,500,300));
+            ~scopeView2 = ScopeView(~window, Rect(10,235,500,180));
+            ~scopeView2.server = s;
+            // ~scopeView.canFocus = true;
+            ~scopeView2.bufnum = ~f2.bufnum;
+            ~scopeView2.start;
+
+            ~text_gains = StaticText(~window, Rect(10, 450, 780, 20)).string = "";
 
             // Monitor slider
-			~slider_pan_speed = Slider(~window, Rect(600, 110, 150, 320));
-            ~text_pan_speed = StaticText(~window, Rect(600, 440, 150, 30)).string = "Mon.gain: 0.2";
+            ~text_arp_slider = StaticText(~window, Rect(695, 5, 80, 30)).string = "Reverb";
+			~slider_pan_speed = Slider(~window, Rect(695, 50, 80, 320));
+            ~text_pan_speed = StaticText(~window, Rect(695, 385, 80, 30)).string = "";
+            ~slider_pan_speed.action = { |slider|
+                ~text_pan_speed.string = "Room size: " ++ slider.value.round(0.01);
+                ~nodeMix.set(\delay, slider.value);
+            };
+
+            // Generate checkboxes
+            ~checkboxHeight = (320 / 5.0).asInteger;
+            ~spacing = (~checkboxHeight / 5.0).asInteger;
+            ~yPos = 40;
+
+            ~text_tones = StaticText(~window, Rect(560, 10, 150, 20)).string = "Arp tones";
+            ~checkboxes = Array.fill(5, { |i|
+                var checkbox = CheckBox.new(~window, Rect(560, ~yPos, 150, ~checkboxHeight), "Tone " ++ (i + 1));
+                ~yPos = ~yPos + (~checkboxHeight + ~spacing);
+                checkbox.value = ~scale_bools[i];
+                checkbox.action = { |box|
+                    if (box.value == true, {
+                        ~scale_bools[i] = 1;
+                    }, {
+                        ~scale_bools[i] = 0;
+                    });
+                    ~scale_bools.postln;
+                };
+                checkbox;
+            });
 
 			~window.front; 
         // }.defer;});
@@ -96,13 +142,19 @@ s.waitForBoot(
 		p.addPath({ |msg|
 
 			var sleeptime = 1;
-            var freq = msg[1].asFloat;
+            var prog_idx = msg[1].asInteger;
+            var chord_progression = msg.drop(2).round(0.001);
             var vol = (5 + 95.rand)/100.0;
-            msg.postln; //print message for debugging
+            var freq = chord_progression[prog_idx];
+            // chord_progression.postln; //print message for debugging
+
+            if (~scale_bools[prog_idx] == 0, {
+                freq = 0;
+            });
 
             //{SinOsc.ar(freq:freq)*0.5*EnvGen.kr(Env.perc(releaseTime:sleeptime-0.01), doneAction:2)}.play;
-            {FreeVerb.ar(LFTri.ar(freq: freq) * vol * EnvGen.kr(Env.perc(releaseTime: sleeptime - 0.01), doneAction: 2), 0.5, ~delay, 0.5)}.play;
-            ~text_gains.string = msg.asString;
+            {Out.ar(~ownBus, LFTri.ar(freq: freq) * vol * EnvGen.kr(Env.perc(releaseTime: sleeptime - 0.01), doneAction: 2))}.play;
+            
         },"/synth"
         );
 
@@ -114,19 +166,18 @@ s.waitForBoot(
             var gains = msg.drop(3).round(0.001);
 
             // gains.round(0.001).postln; //print message for debugging
-            ~delay = delay;
 
             ~filterMixBlock.set(\vol, vol);
             ~filterMixBlock.set(\gains, gains);
             ~filterMixBlock.set(\cutoffFreq, cutoffFreq);
-            ~filterMixBlock.set(\delay, delay);
 
             // ~gui.set(\gains, gains);
             {~text_gains.string = gains.round(0.1);
-            ~slider_pan_speed.value = vol;
+                // ~slider_pan_speed.value = vol;
             }.defer;
 
         },"/shiftmix"
         );
     }
 );
+s.meter;

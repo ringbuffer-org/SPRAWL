@@ -77,7 +77,7 @@
     - name: "Connect jacktrip clients"
       shell: |
         jack_connect {{ item }}:receive_1 SuperCollider:in_{{ index+2 }}
-        jack_connect system:capture_1 {{ item }}:send_1
+        jack_connect SuperCollider:out_2 {{ item }}:send_1
       loop: "{{ groups['active_sprawl_nodes'] | difference([inventory_hostname]) }}"
       loop_control:
         index_var: index

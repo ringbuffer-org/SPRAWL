@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import norm
 import cv2
 import asyncio
-import pickle
+import time
 from pythonosc.osc_message_builder import OscMessageBuilder
 import logging
 from typing import Tuple, Union
@@ -22,7 +22,7 @@ class VideoTracking():
     async def init(self):
         # Create the UDP socket
         self.transport, _ = await asyncio.get_event_loop().create_datagram_endpoint(
-            lambda: OscProtocolUdp(self), local_addr=('0.0.0.0', 57121), remote_addr=("127.0.0.1", 3765))
+            lambda: OscProtocolUdp(self), local_addr=('0.0.0.0', 57122), remote_addr=("127.0.0.1", 3765))
 
         # Register with the P2PSC
         self.connect()
@@ -56,7 +56,18 @@ class VideoTracking():
         self.mod_volume = False
         self.pan_override = False
         self.auto_circ_pan = False
+        self.camera_arp = False
+        self.sending_shifts = True
         self.auto_pan_val = 0.0
+        self.bpm = 120
+        self.new_bpm_time = time.time()
+
+        # Array with pentatonic scales in Hz: C, D, E, G, A
+        self.pentatonics = np.array([261.63, 293.66, 329.63, 392.00, 440.00])
+        self.chord_threshold = 0.01
+        self.chord_detect_avg = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+        self.chord_progression = np.array([0, 1, 1, 4])
+        self.progression_index = 0
 
     def connect(self):
         self.send_osc_msg(self.transport, ["/p2psc/peerinfo", [1, "T1 T2", "/test1 /test2"]])
@@ -71,6 +82,29 @@ class VideoTracking():
             gray = frame #cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             frame_dilated = ""
+
+            # Loop through pentatonic scale and play notes if next bpm timestep is reached
+            now = time.time()
+            if (now > self.new_bpm_time and len(self.chord_progression) > 0 and self.camera_arp == True):
+                self.new_bpm_time = now + (60/self.bpm)
+
+                # get index of next note in pentatonic scale and skip if 0 while looping over 5 steps
+                for i in range(len(self.chord_progression)):
+                    self.progression_index += 1
+                    if (self.progression_index >= len(self.chord_progression)):
+                        self.progression_index = 0
+                    if (self.chord_progression[self.progression_index] != 0):
+                        break
+
+                note = self.chord_progression[self.progression_index]
+                # print(f"Progression index: {self.progression_index}")
+                # print(f"Progression: {self.chord_progression}")
+
+                if (note != 0):
+                    print(f"Playing note: {note}")
+                    self.send_osc_msg(self.transport, ["/ALL/synth", [self.progression_index, *self.chord_progression]])
+                
+
 
             if (self.last_image != ""):
                 frame_diff = cv2.absdiff(gray, self.last_image)
@@ -87,7 +121,25 @@ class VideoTracking():
                 # print('white pixels:', white_pixels)
 
                 # do canny edge detection
-                canny = cv2.Canny(frame_dilated, 100, 200)
+                # canny = cv2.Canny(frame_dilated, 100, 200)
+                canny = frame_dilated
+
+                # Split image into 5 vertical sections
+                section_width = int(gray.shape[1]/5)
+                self.chord_progression = np.array([])
+                for i in range(len(self.chord_detect_avg)):
+                    val = cv2.countNonZero(canny[:, i*section_width:(i+1)*section_width])/(section_width*gray.shape[0])
+                    # print(f"Section {i}: {val}")
+                    adapt_speed = self.smoothing
+                    self.chord_detect_avg[i] = adapt_speed*self.chord_detect_avg[i] + (1-adapt_speed)*val
+                    if (self.chord_detect_avg[i] > self.chord_threshold):
+                        note = self.pentatonics[i]
+                    else:
+                        note = 0.0
+                    self.chord_progression = np.append(self.chord_progression, note)
+
+                # print(self.chord_detect_avg)
+                # print(self.chord_progression)
 
                 # get canny points
                 # numpy points are (y,x)
@@ -130,12 +182,13 @@ class VideoTracking():
                 new_vols = self.get_vol_distr(len(self.nodes), pan_val)
 
                 # Debug option
-                # new_vols = self.get_vol_distr(4, (circ_x_perc/100.0 if self.pan_override == False else self.smoothing))
+                # new_vols = self.get_vol_distr(4, pan_val)
                 # self.nodes = ['ALL']
 
                 # Send shifts of gain list to nodes
-                for i in range(len(self.nodes)):
-                    self.send_osc_msg(self.transport, [f"/{self.nodes[i]}/shiftmix", [circ_y_perc, (rad_perc if self.mod_volume == True else 100), *np.roll(new_vols, i)]])
+                if (self.sending_shifts == True):
+                    for i in range(len(self.nodes)):
+                        self.send_osc_msg(self.transport, [f"/{self.nodes[i]}/shiftmix", [circ_y_perc, (rad_perc if self.mod_volume == True else 100), *np.roll(new_vols, i)]])
 
                 cv2.circle(frame_dilated, (int(self.circ_x),int(self.circ_y)), int(self.rad), (255,255,255), 1)
                 
@@ -182,6 +235,14 @@ class VideoTracking():
     def set_auto_circ_pan(self, val):
         print(f"Setting auto circ pan: {val}")
         self.auto_circ_pan = val
+
+    def set_camera_arp(self, val):
+        print(f"Setting camera arp: {val}")
+        self.camera_arp = val
+
+    def set_sending_shifts(self, val):
+        print(f"Setting sending shifts: {val}")
+        self.sending_shifts = val
 
     def osc_message(self, path, args):
         mb = OscMessageBuilder(path)

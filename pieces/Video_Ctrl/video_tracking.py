@@ -98,6 +98,14 @@ class VideoItem(QQuickPaintedItem):
     def set_auto_circ_pan(self, value):
         self.vt.set_auto_circ_pan(value)
 
+    @pyqtSlot(bool)
+    def set_camera_arp(self, value):
+        self.vt.set_camera_arp(value)
+
+    @pyqtSlot(bool)
+    def set_sending_shifts(self, value):
+        self.vt.set_sending_shifts(value)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
