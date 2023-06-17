@@ -12,10 +12,10 @@ SynthDef(\input_analyzer, {
     |out|
     var sig = SoundIn.ar(0);
     var fft, centroid;
-    Out.kr(~amplitude, Amplitude.kr(sig,0.4, 0.1, mul:50));
+    Out.kr(~amplitude, Amplitude.kr(sig,0.1, 0.03, mul:50));
     fft = FFT(LocalBuf(2048), SoundIn.ar(0));
     centroid = SpecCentroid.kr(fft)/1000;
-
+    centroid.poll(10);
     Out.kr(~freq, centroid);
 
 }).add;
@@ -28,6 +28,7 @@ x = Synth(\input_analyzer);
 SynthDef(\Grain, {
     | inBuf, rate=17|
     var ctrl = In.kr(~amplitude);
+    var freq_ctrl = In.kr(~freq);
     var rate_trig = rate + (ctrl * 15);
     var trigger = Impulse.kr(rate_trig);
     var dur = (3+(8*ctrl))/rate_trig;
