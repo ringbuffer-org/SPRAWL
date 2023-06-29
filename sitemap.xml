@@ -1,23 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>http://ii.hvc.berlin/</loc>
-         <lastmod>2023-05-11</lastmod>
+         <loc>http://nsmi.ringbuffer.org/</loc>
+         <lastmod>2023-06-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://ii.hvc.berlin/ansible_getting_started/</loc>
-         <lastmod>2023-05-11</lastmod>
+         <loc>http://nsmi.ringbuffer.org/about/</loc>
+         <lastmod>2023-06-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://ii.hvc.berlin/filter_band/</loc>
-         <lastmod>2023-05-11</lastmod>
+         <loc>http://nsmi.ringbuffer.org/ansible/</loc>
+         <lastmod>2023-06-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://ii.hvc.berlin/system_boot/</loc>
-         <lastmod>2023-05-11</lastmod>
+         <loc>http://nsmi.ringbuffer.org/ansible_getting_started/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/camera_tracking/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/delay_ring/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/democratic_soundscapes/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/filter_band/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/lfo_panner/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/neighbors_spectral_phasor/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/p2psc/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/round_robin/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/scyclone/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/sprawl_2020/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/system_boot/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://nsmi.ringbuffer.org/union/</loc>
+         <lastmod>2023-06-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

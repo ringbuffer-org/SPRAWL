@@ -1,0 +1,472 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="http://nsmi.ringbuffer.org/ansible/" rel="canonical"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.4.2, mkdocs-material-8.2.9" name="generator"/>
+<title>Raspberry Pi setup - </title>
+<link href="../assets/stylesheets/main.120efc48.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.9647289d.min.css" rel="stylesheet"/>
+<meta content="#00bdd6" name="theme-color"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto Mono";--md-code-font:"Roboto Mono"}</style>
+<link href="../stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            
+                .gscrollbar-fixer { padding-right: 15px; }
+                .gdesc-inner { font-size: 0.75rem; }
+                body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+                body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+                body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}
+                </style><script src="../assets/javascripts/glightbox.min.js"></script></head>
+<body data-md-color-accent="" data-md-color-primary="cyan" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#raspberry-pi-setup">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="" class="md-header__button md-logo" data-md-component="logo" href=".." title="">
+<img alt="logo" src="../graphics/icon.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+</span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Raspberry Pi setup
+            
+          </span>
+</div>
+</div>
+</div>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="" class="md-nav__button md-logo" data-md-component="logo" href=".." title="">
+<img alt="logo" src="../graphics/icon.png"/>
+</a>
+</label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+        Home
+      </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2">
+          About the System
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="About the System" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+          About the System
+        </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sprawl_2020/">
+        SPRAWL 2020
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../about/">
+        Jack + JackTrip
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../p2psc/">
+        p2psc
+      </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3">
+          Student Projects
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Student Projects" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+          Student Projects
+        </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../scyclone/">
+        SCYCLONE
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../camera_tracking/">
+        Camera Tracking
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../neighbors_spectral_phasor/">
+        Neighbor's
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filter_band/">
+        Filter Band
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../democratic_soundscapes/">
+        Democratic Soundscapes
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../union/">
+        UNION
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../round_robin/">
+        Round Robin
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../lfo_panner/">
+        LFO Panner
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../delay_ring/">
+        Delay Ring
+      </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="raspberry-pi-setup">Raspberry Pi setup</h1>
+<p>I've used the <a href="https://www.raspberrypi.com/news/raspberry-pi-imager-imaging-utility/">Raspberry Pi Imager</a> utility to flash the Raspberry Pi SD cards. </p>
+<p>The tool allows you to set an initial wifi, user, password, and host name. I used <code>Raspberry Pi OS Lite (64-bit)</code> as a starting point. This is a minimal distribution, which allows us to install only the packages we need.</p>
+<p>The following scheme for names, hostnames and passwords can be used for a consistent setup:</p>
+<ul>
+<li><em>Username:</em> nodeA</li>
+<li><em>Hostname:</em> nodeA</li>
+<li><em>Password:</em> knotenA </li>
+</ul>
+<blockquote>
+<p>Note: Only use this password scheme if the nodes are not connected to a public network. However, after you copied the ssh key (next step) you can disable ssh login via password, <a href="https://askubuntu.com/questions/346857/how-do-i-force-ssh-to-only-allow-users-with-a-key-to-log-in">as described here</a>. You could do this temporarily, since the Pis require an internet connection during the ansible setup.</p>
+</blockquote>
+<p>The letter <em>A</em> is then replaced for each node by incrementing the letter. After the image is flashed, we copy our public ssh key to each Raspberry Pi using <code>ssh-copy-id</code>:</p>
+<div class="highlight"><pre><span></span><code>ssh-copy-id nodeA@nodeA.local
+</code></pre></div>
+<p>After this, the setup process is automated using Ansible. The configuration files are in this repository's <em>ansible</em> subfolder. </p>
+<h1 id="ansible">Ansible</h1>
+<h2 id="config">Config</h2>
+<p>Currently, these are only used to save some time running commands. <code>ansible.cfg</code> only contains two options:</p>
+<div class="highlight"><pre><span></span><code>[defaults]
+INVENTORY = inventory
+
+[ssh_connection]
+pipelining = True
+</code></pre></div>
+<p>The first line sets the default "inventory" file, which contains the username@host for all Raspberry Pis which should be setup using Ansible.</p>
+<p>The second option <code>pipelining = True</code> enables pipelining via ssh:</p>
+<blockquote>
+<p>Pipelining, if supported by the connection plugin, reduces the number of network operations required to execute a module on the remote server, by executing many Ansible modules without actual file transfer. It can result in a very significant performance improvement when enabled. However this conflicts with privilege escalation (become). <strong>For example, when using ‘sudo:’ operations you must first disable ‘requiretty’ in /etc/sudoers on all managed hosts, which is why it is disabled by default.</strong> This setting will be disabled if ANSIBLE_KEEP_REMOTE_FILES is enabled.</p>
+</blockquote>
+<p>Note that I don't remember explicitly disabling <code>requiretty</code> on the Pis, so it might be the default. However, if there are problems with privilege you can try disabling this option.</p>
+<hr/>
+<h2 id="general-setup">General Setup</h2>
+<h3 id="software-overview">Software Overview</h3>
+<p>The <code>setup.yml</code> file contains a general setup for the Pis, making sure that the hardware is set up correctly and everything is up to date. The following software is installed:</p>
+<ul>
+<li><em>lightdm, lxsession</em>: Lightweight display manager <a href="http://www.lxde.org/">lxde</a></li>
+<li><em>supercollider, sc3-plugins</em> <a href="https://supercollider.github.io/">supercollider</a></li>
+<li><em>jackd2</em> Jack audio</li>
+<li><em>python3-pip, git</em> Requirements for <a href="https://github.com/bontric/p2psc">p2psc</a></li>
+<li><em>xinput</em> I'm not quite sure whether this is still necessary..</li>
+</ul>
+<h3 id="lxde">LXDE</h3>
+<p>The following command enables automatic login (so no password is required) after boot:</p>
+<div class="highlight"><pre><span></span><code>raspi-config nonint do_boot_behaviour B4
+</code></pre></div>
+<p>As you may notice, the screen rotation is wrong, so we need to configure LXDE to flip the screen. This requires a reboot (which is done automatically), after which the LXDE configuration files are created.</p>
+<p>To rotate the screen, a script is run after every boot which executes some xrandr commands to rotate the screen <em>and touchscreen</em></p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nv">DISPLAY</span><span class="o">=</span>:0 xrandr -o inverted
+<span class="nv">DISPLAY</span><span class="o">=</span>:0 xinput --set-prop <span class="s2">"generic ft5x06 (79)"</span> <span class="s2">"Coordinate Transformation Matrix"</span> -1 <span class="m">0</span> <span class="m">1</span> <span class="m">0</span> -1 <span class="m">1</span> <span class="m">0</span> <span class="m">0</span> <span class="m">1</span>
+</code></pre></div>
+<h3 id="keyboard-layout">Keyboard layout</h3>
+<p>Is set to German by default, since the keyboards at TU are all German.</p>
+<h3 id="jack-audio">Jack Audio</h3>
+<p>The following is required to allow jack audio real-time scheduling, see <a href="https://jackaudio.org/faq/linux_rt_config.html">here</a>:</p>
+<div class="highlight"><pre><span></span><code>- name: Add user to audio group and enable jack limits config
+  hosts: p2psc
+  tags: jack
+  tasks:
+  - shell: usermod -a -G audio {{ ansible_user_id }}
+    become: true
+  - copy: remote_src=True src=/etc/security/limits.d/audio.conf.disabled dest=/etc/security/limits.d/audio.conf
+    become: true   
+</code></pre></div>
+<p>Additionally, a script is created that automatically starts jack audio in a terminal after boot:</p>
+<div class="highlight"><pre><span></span><code>/usr/bin/jackd -P75 -dalsa -dhw:1 -p512 -n3 -s -r44100 <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">&amp;</span>
+</code></pre></div>
+<h3 id="p2psc">P2PSC</h3>
+<p>Clones the p2psc repository (<code>~/p2psc</code>) and creates a script to automatically run p2psc in a terminal window after boot. There is also a 10s delay, to wait for a DHCP lease if a server is present:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span> <span class="s2">"Waiting for DHCP/AutoIP init..."</span>
+sleep <span class="m">10</span><span class="p">;</span>
+<span class="nv">PYTHONPATH</span><span class="o">=</span>~/p2psc/ python3 ~/p2psc/p2psc/main.py -v
+</code></pre></div>
+<blockquote>
+<p>This is required since p2psc automatically detects the IP address. If p2psc is started immediately after boot, it will use an AUTO-IP address, which will lead to issues in a DHCP enabled network.</p>
+</blockquote>
+<p>Additionally, the setup creates a p2psc configuration file with the "name" set to each host's host name:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{ ansible_user_id }}"</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"zeroconf"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"ip"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">"port"</span><span class="p">:</span><span class="w"> </span><span class="mi">3760</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h3 id="supercollider">Supercollider</h3>
+<p>Since we want to use the p2psc supercollider library, a config file for supercollider is created:</p>
+<p><code>~/.config/SuperCollider/sclang_conf.yaml</code>
+<div class="highlight"><pre><span></span><code><span class="nt">includePaths</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">~/p2psc/libs/sclang</span><span class="w"></span>
+<span class="nt">excludePaths</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">[]</span><span class="w"></span>
+<span class="nt">postInlineWarnings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+</code></pre></div></p>
+<hr/>
+<h2 id="jacktrip-setup">Jacktrip Setup</h2>
+<blockquote>
+<p>Note that this has not been tested for a while and was only a proof of concept. So take it with a grain of salt ;)</p>
+</blockquote>
+<h3 id="jacktrip">jacktrip</h3>
+<p>When I created this script, the <code>jacktrip</code> provided in the Ubuntu repositories was missing some essential features, which is why I created an extra step to clone and compile a more recent version of jacktrip. This might not be necessary anymore!</p>
+<h3 id="jack-matchmaker">jack-matchmaker</h3>
+<p>Creates a systemd service that runs jack-matchmaker in the background. This allows us to automatically connect certain jack clients with others. Since we can update the configuration while this script is running, we can dynamically change the connections it makes. This allows us to map jack and jacktrip channels in a sensible manner.</p>
+<h3 id="supercollider_1">Supercollider</h3>
+<p>We also create a supercollider startup file, which sets the number of SC channels to 12 by default:</p>
+<p><code>~/.config/SuperCollider/startup.scd</code>
+<div class="highlight"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">s.options.numInputBusChannels = 12;</span><span class="w"></span>
+<span class="l l-Scalar l-Scalar-Plain">s.options.numOutputBusChannels = 12;</span><span class="w"></span>
+</code></pre></div></p>
+<blockquote>
+<p>Note: That the number of channels must match or exceed the number of nodes in the network + Output channels!</p>
+</blockquote>
+<h3 id="connection-setup">Connection Setup</h3>
+<p>Note that this requires some manual intervention since the jack to jacktrip port mapping is not implemented dynamically. This is the current default mapping of nodes to supercollider ports:</p>
+<div class="highlight"><pre><span></span><code>nodeA:receive_1 
+SuperCollider:in_3
+
+SuperCollider:out_3
+nodeA:send_1 
+
+nodeB:receive_1 
+SuperCollider:in_4
+
+SuperCollider:out_4
+nodeB:send_1 
+
+nodeC:receive_1 
+SuperCollider:in_5
+
+SuperCollider:out_5
+nodeC:send_1 
+
+nodeD:receive_1 
+SuperCollider:in_6
+
+SuperCollider:out_6
+nodeD:send_1 
+
+nodeE:receive_1 
+SuperCollider:in_7
+
+SuperCollider:out_7
+nodeE:send_1 
+
+nodeF:receive_1 
+SuperCollider:in_8
+
+SuperCollider:out_8
+nodeF:send_1 
+
+nodeG:receive_1
+SuperCollider:in_9
+
+SuperCollider:out_9
+nodeG:send_1 
+
+nodeH:receive_1 
+SuperCollider:in_10
+
+SuperCollider:out_10
+nodeH:send_1
+</code></pre></div>
+<p>The connection establishment is "semi-automatic" and uses the Ansible inventory to determine which connections need to be made. In a fixed setup, the script used here could be run after boot and automatically create all jackrip connections. </p>
+<p>Since this was more of a proof-of-concept, this is a bit hacky, but it worked if I remember correctly ;)
+First, we create a list of other hosts for each node. This might a bit tricky to grasp, but we only want to create connections in <em>one</em> direction (which then are bidirectional). This means, not every node connects to every other node. This script creates a subset of nodes for each node to achieve this:</p>
+<div class="highlight"><pre><span></span><code>Example hosts [A,B,C,D]:
+
++ A connects to [B,C,D]
++ B connects to [C,D]
++ C connects to [D]
++ D connects to [] (none)
+</code></pre></div>
+<p>Which results in a fully connected graph</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ownIndex</span><span class="o">={{</span> play_hosts.index<span class="o">(</span>inventory_hostname<span class="o">)</span> <span class="o">}}</span>
+
+<span class="nv">index</span><span class="o">={{</span> index <span class="o">}}</span>
+
+<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ownIndex</span><span class="s2"> </span><span class="nv">$index</span><span class="s2">"</span> &gt;&gt; /home/<span class="o">{{</span> ansible_user_id <span class="o">}}</span>/test 
+
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$ownIndex</span><span class="s2">"</span> -lt <span class="s2">"</span><span class="nv">$index</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">item</span><span class="o">={{</span> item <span class="o">}}</span>
+    <span class="nv">remote_host_addr</span><span class="o">=</span><span class="si">${</span><span class="nv">item</span><span class="p">#*@</span><span class="si">}</span>
+    <span class="nv">remote_host</span><span class="o">=</span><span class="si">${</span><span class="nv">remote_host_addr</span><span class="p">%%.*</span><span class="si">}</span>
+    <span class="nb">echo</span> -n <span class="s2">"</span><span class="nv">$remote_host</span><span class="s2"> "</span> &gt;&gt; /home/<span class="o">{{</span> ansible_user_id <span class="o">}}</span>/.jacktrip_connections <span class="p">;</span>
+<span class="k">fi</span>
+</code></pre></div>
+<p>This file is then used in a script to create a jacktrip hub instance and establish all connections:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># start jacktrip server in hub (-S) mode for incoming connections</span>
+<span class="c1"># and disable default connections (-D)</span>
+jacktrip -S -D &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">&amp;</span> 
+
+<span class="c1"># wait 5 seconds to make sure all hubs are started</span>
+sleep <span class="m">5</span><span class="p">;</span> 
+
+<span class="c1"># Go through list of hosts and establish connections</span>
+<span class="nv">hosts</span><span class="o">=</span><span class="k">$(</span>cat /home/<span class="o">{{</span> ansible_user_id <span class="o">}}</span>/.jacktrip_connections<span class="k">)</span>
+<span class="nv">port</span><span class="o">=</span><span class="m">4464</span>
+<span class="k">for</span> h <span class="k">in</span> <span class="nv">$hosts</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c1"># create a 1-channel connection to each host (-n1)</span>
+    jacktrip -C <span class="si">${</span><span class="nv">h</span><span class="si">}</span>.local -J <span class="nv">$h</span> -K <span class="o">{{</span> ansible_user_id <span class="o">}}</span> -n1 -D -B<span class="si">${</span><span class="nv">port</span><span class="si">}</span> &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">&amp;</span> 
+    <span class="o">((</span><span class="nv">port</span><span class="o">=</span>port+1<span class="o">))</span>
+<span class="k">done</span>
+</code></pre></div>
+<hr/>
+<h2 id="running-ansible">Running Ansible</h2>
+<p><em>From within the ansible subfolder</em>, run the following command:</p>
+<div class="highlight"><pre><span></span><code>ansible-playbook setup.yml
+</code></pre></div>
+<blockquote>
+<p>Note: Make sure that the <code>inventory</code> file in the ansible subfolder contains a line for each node you want to set up (e.g. nodeA@nodeA.local || \&lt;user&gt;@\&lt;hostname&gt;.local)</p>
+</blockquote>
+<h2 id="running-jacktrip">Running Jacktrip</h2>
+<blockquote>
+<p>Note that this is untested but <em>should</em> work!</p>
+</blockquote>
+<p>Run the jacktrip connect script created during the jacktrip_setup:</p>
+<div class="highlight"><pre><span></span><code> ansible p2psc -m shell -a <span class="s2">"nohup ~/scripts/jt_connect.sh &amp;"</span>
+</code></pre></div>
+<p>Kill all jacktrip instances</p>
+<div class="highlight"><pre><span></span><code> ansible p2psc -m shell -a <span class="s2">"killall jacktrip&amp;"</span>
+</code></pre></div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="md-copyright__highlight">
+      NSMI Class 2023
+    </div>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="mailto:voncoler@tu-berlin.de" rel="noopener" target="_blank" title="">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="m511.6 36.86-64 415.1a32.008 32.008 0 0 1-31.65 27.147c-4.188 0-8.319-.815-12.29-2.472l-122.6-51.1-50.86 76.29C226.3 508.5 219.8 512 212.8 512c-11.5 0-20.8-9.3-20.8-20.8v-96.18c0-7.115 2.372-14.03 6.742-19.64L416 96 122.3 360.3 19.69 317.5C8.438 312.8.812 302.2.062 289.1s5.47-23.72 16.06-29.77l448-255.1c10.69-6.109 23.88-5.547 34 1.406S513.5 24.72 511.6 36.86z"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+<script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+</html>
