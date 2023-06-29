@@ -14,10 +14,6 @@
 **18:00 - 24:00**
 
 <center>
-  ![](graphics/nsmi_qr.png){ width="30%" }
-</center>  
-
-<center>
     ![](graphics/wires.jpg){ width="90%" }
 </center>
 
