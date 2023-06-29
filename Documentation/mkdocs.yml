@@ -22,6 +22,12 @@ nav:
       - LFO Panner: 'lfo_panner.md'
       - Delay Ring: 'delay_ring.md'
 
+    - Manuals:
+
+      - SPRAWL Notes: 'system_boot.md'
+      - Ansible: 'ansible.md'
+      - Getting Started with Ansible: 'ansible_getting_started.md'
+
 #
 #     - Production Systems:
 #       - SeamLess: 'seamless.md'
