@@ -1,3 +1,4 @@
+(
 s.waitForBoot(
 {
 	p = P2PSC();
@@ -8,42 +9,45 @@ s.waitForBoot(
 	~hostname.post;
 	// sync node
 	p.sync();
-	"test".postln;
-	p.getPeers().select({ |item| item.beginsWith("AP") }).postln;
+	~ps = p.getPeers().select({ |item| item.beginsWith("AP") });
+	~ps.postln;
+	b = Bus.control(s, 1);
 
-	// define P2PSC communication routine
-	p.addPath({arg msg;
+	// local sound player, streams I to O with dry/wet bandpass
+	~stream = { arg fc = 1000; // center freq of bandpass
+		var wet = 0.8, gain = 0.2, sig = SoundIn.ar(0);
+		Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*(1-wet)) * gain)
+	}.play;
+
+	~sender = {
+		// define next peer and self
+		var nextpeer;
+		// send to the next peer in our list
+		nextpeer = ~ps.wrapAt(1+~ps.indexOfEqual(~hostname));
+		// send message to next peer with "np" identifier and the centroid
+		p.sendMsg("/"++nextpeer++"/np", In.kr(b).asString)
+	}.play;
+
+	~feature = {
 		// declare centroid vars
 		var fft, centroid;
-		// define next peer and self
-		var nextpeer, source_peer = msg[1].asString;
-		// get list of all peers
-		var peers = p.getPeers().select({ |item| item.beginsWith("AP") });
-		// debug message
-		msg.postln;
-
-		// local sound routine, streams I to O with dry/wet bandpass
-		~stream = { arg fc = 1000; // center freq of bandpass
-			var wet = 0.8, gain = 0.2, sig = SoundIn.ar(0);
-			Out.ar(0, (BPF.ar(sig, fc.lag(0.1))*wet + sig*(1-wet)) * gain)
-		}.play;
-
-		// change center freq of audio routine
-		~stream.set(\fc, msg[2]);
-
 		// get fft from local input
 		fft = FFT(LocalBuf(2048), SoundIn.ar(0));
 		// calc spectral centroid
 		centroid = SpecCentroid.kr(fft);
+		Out.kr(b, centroid);
+	}.play;
 
-		//sleeptime.wait;
-		// send to the next peer in our list
-		nextpeer = peers.wrapAt(1+peers.indexOfEqual(source_peer));
-		// send message to next peer with "np" identifier and the centroid
-		p.sendMsg("/"++nextpeer++"/np", p.name, centroid.asString)
-		}, "/np");
-    }.fork;
+		// see https://github.com/ringbuffer-org/SPRAWL/blob/main/pieces/Delay_Graph/SC/delay_gui.scd
+
+	// define P2PSC listener (listens to "/np" channel)
+	p.addPath({arg msg;
+		// change center freq of audio
+		~stream.set(\fc, msg[1].sFloat);
+	}, "/np");
+};
 );
+)
 
 // (
 // local sound routine, streams I to O with dry/wet bandpass
