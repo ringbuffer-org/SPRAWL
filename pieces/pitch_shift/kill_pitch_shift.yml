@@ -1,0 +1,16 @@
+---
+- name: "Remove the PitchShift config!"
+  hosts: active_sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: "Kill SC!"
+      shell: killall sclang
+      ignore_errors: true
+
+    - name: "Kill SC!"
+      shell: killall scsynth
+      ignore_errors: true
+
+    - name: "Kill JackTrip!"
+      shell: killall jacktrip
+      ignore_errors: true
