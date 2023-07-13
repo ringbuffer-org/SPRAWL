@@ -1,6 +1,6 @@
 ---
 - name: "Remove the PitchShift config!"
-  hosts: active_sprawl_nodes
+  hosts: sprawl_nodes
   gather_facts: false
   tasks:
     - name: "Kill SC!"
