@@ -22,4 +22,4 @@
 
   vars:
     base_port: 4464
-    master_node: AP-09
+    master_node: AP-01

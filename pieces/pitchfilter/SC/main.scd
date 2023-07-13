@@ -9,7 +9,7 @@ s.waitForBoot({{
 	var bandwidth = 3.0; // Bandbreite des Bandpassfilters
 	var freq;
 
-	sig = SoundIn.ar(1)
+	sig = SoundIn.ar(1);
 	input = SoundIn.ar([0]); // Eingangssignal auf den Kanälen 0 und 1
     freq = Pitch.kr(input, ampThreshold: 0.02, median: 7).cpsmidi.round(1).midicps;
 

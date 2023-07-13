@@ -3,7 +3,7 @@
   hosts: sprawl_nodes
   gather_facts: false
   vars: 
-    master_node: AP-09
+    master_node: AP-01
   tasks:
     - name: Connect local ins/outs
       shell: |
