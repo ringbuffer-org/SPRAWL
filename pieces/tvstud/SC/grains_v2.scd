@@ -47,12 +47,15 @@ s.waitForBoot(
                 var pan = WhiteNoise.kr(0.6);
                 var sig_grains = GrainBuf.ar(2, trigger, dur:dur, sndbuf:inBuf, rate:rate_playback, pos:pos , pan:pan);
                 ctrl.poll(10);
-                Out.ar(0,sig_grains * EnvGen.kr(main_env, doneAction:2));
+                Out.ar(0,1.1*sig_grains * EnvGen.kr(main_env, doneAction:2));
             }).add;
             y = Synth(\Grain, [\inBuf, ~bufs[5]]);
         );
         s.sync;
-        r = Routine({inf.do({var buf = ~bufs.scramble[0]; Synth(\Grain, [\inBuf, buf]); (buf.duration + 0.5).wait })}).play;
+        r = Routine({inf.do({var buf = ~bufs.scramble[0]; Synth(\Grain, [\inBuf, buf]); (buf.duration + 10.rand).wait })}).play;
+		Image.new(thisProcess.nowExecutingPath.dirname +/+ "img.jpg").plot;
     }
 
+
 );
+
