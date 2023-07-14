@@ -1,4 +1,4 @@
-~n_chan = 14;
+~n_chan = 15;
 s.options.numOutputBusChannels = ~n_chan;
 s.options.numInputBusChannels = 1;
 s.waitForBoot(
@@ -27,7 +27,7 @@ s.waitForBoot(
             ~text_pan_speed = TextField(~window, Rect(10,450,780,30)).string = "Pan Speed: 0.2";
             ~slider_pan_speed.action_({
                 arg sl;
-                var new_freq = (sl.x*10)**3;
+                var new_freq = (sl.x*10)**2;
                 var new_lfo_type = sl.y * 2;
                 ~panner.set(\freq, new_freq, \lfo_choice, new_lfo_type);
                 ~text_pan_speed.string = "Pan Speed: " ++ new_freq.round(1e-2) ++ "Hz \tLFO Blend: " ++ new_lfo_type.round(1e-2) ++ " \t(0 Saw, 1 Sine, 2 Noise)";
