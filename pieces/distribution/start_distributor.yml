@@ -1,0 +1,60 @@
+---
+- name: Start P2PSC
+  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_p2psc.yml
+
+- name: Create JackTrip Mesh
+  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_jacktrip_mesh.yml
+
+- name: Start Distributor
+  hosts: sprawl_nodes
+  gather_facts: true
+  tasks:
+    - name: "Ensure 'pieces' dir exists"
+      ansible.builtin.file:
+        path: /home/member/pieces/
+        state: directory
+        owner: member
+        group: member
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: "Copy Files onto the server"
+      ansible.builtin.copy:
+        src: SC
+        dest: /home/member/pieces/distributor
+        owner: member
+        group: member
+        mode: "0644"
+
+    - name: "Launch SC!"
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 sclang distributor.scd >> /tmp/distributor.log
+      args:
+        chdir: /home/member/pieces/distributor/SC
+
+    - name: "Wait a couple of seconds"
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: "Connect all Supercollider Instances to Hardware In- and Outputs"
+      ansible.builtin.shell: |
+        jack_connect Distributor:out_1 system:playback_1
+        jack_connect Distributor:out_{{ (length_of_hosts | int) + 1 }} system:playback_2
+        jack_connect system:capture_1 Distributor:in_1
+        jack_connect system:capture_2 Distributor:in_1
+      vars:
+        length_of_hosts: "{{ ansible_play_hosts | length }}"
+
+
+    - name: "Connect Jacktrip Clients"
+      ansible.builtin.shell: |
+        jack_connect Distributor:out_{{ index + 2 }} {{ peer }}:send_1
+        jack_connect {{ peer }}:receive_1 Distributor:in_{{ index + 2 }}
+      vars:
+        index: "{{ ansible_play_hosts.index(inventory_hostname) }}"
+                # rotates the list of hosts, (index | int) to convert the index back to int
+        rotated_host_list: "{{ ansible_play_hosts[(index | int):] + ansible_play_hosts[:(index | int)] }}"
+      loop: "{{ rotated_host_list[1:] }}"
+      loop_control:
+        index_var: index
+        loop_var: peer
