@@ -1,4 +1,4 @@
-~n_peers = 2;
+~n_peers = 3;
 ~n_chan = ~n_peers+1;
 s.options.numInputBusChannels = ~n_chan;
 s.options.numOutputBusChannels = ~n_chan + 1;
