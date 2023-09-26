@@ -1,0 +1,16 @@
+---
+- name: Disable Screen Sleep
+  hosts: sprawl_nodes
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Edit lightdm conf
+      ansible.builtin.blockinfile:
+        path: /etc/lightdm/lightdm.conf
+        block: |
+          [SeatDefaults]
+          xserver-command=X -s 0 -dpms
+      register: lightdmconf
+    - name: Reboot after
+      ansible.builtin.reboot:
+      when: lightdmconf.changed

@@ -7,6 +7,7 @@
 
 - name: Setup Access Point
   ansible.builtin.import_playbook: setup_accesspoint.yml
-
+- name: Disable Screen Sleep
+  ansible.builtin.import_playbook: disable_screen_sleep.yml
 - name: Setup Screen Rotation
   ansible.builtin.import_playbook: setup_screenrotation.yml
