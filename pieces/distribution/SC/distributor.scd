@@ -1,4 +1,4 @@
-~n_peers = 5;
+~n_peers = 6;
 ~n_chan = ~n_peers+1;
 s.options.numInputBusChannels = ~n_chan;
 s.options.numOutputBusChannels = ~n_chan + 1;
@@ -43,13 +43,13 @@ s.waitForBoot(
 
 		~text_instructions.string = "EOC Command text line test stuff.";
 
-		OSCdef(\set_clock_freq, {
+/*		OSCdef(\set_clock_freq, {
 
 			|msg, time, addr, recvPort|
 
 			~clock_generator.set(msg[1].asFloat);
 
-		}, "/set_text_instructions");
+		}, "/set_clock_freq");*/
 
 
 		// OSCdef(\set_text_instructions, {
@@ -88,6 +88,12 @@ s.waitForBoot(
 
 		}, "/set_text_instructions");
 
+
+		p.addPath({ |msg|
+
+				~clock_generator.set(\freq, msg[1].asFloat);
+
+		}, "/set_clock_freq");
 };
 
 );
