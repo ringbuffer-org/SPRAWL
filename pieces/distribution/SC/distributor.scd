@@ -1,8 +1,11 @@
-~n_peers = 3;
+~n_peers = 5;
 ~n_chan = ~n_peers+1;
 s.options.numInputBusChannels = ~n_chan;
 s.options.numOutputBusChannels = ~n_chan + 1;
 s.options.device = "Distributor";
+
+~input_OSC = 6666;
+thisProcess.openUDPPort(~input_OSC);
 
 s.waitForBoot(
 	{
@@ -23,11 +26,42 @@ s.waitForBoot(
 				Out.ar(0, in_main!~n_chan*out_gains);
 				Out.ar(0, Mix.new(in_ext));
 		}).play;
+
 		~clock_generator = {
 			|freq = 1|
 			Out.ar(~n_chan,LFPulse.ar(freq, width:0.5);
 		)}.play;
-/*
+
+		~window = Window(bounds:800@480).front().background_(Color.black);
+		~window.fullScreen();
+
+		~text_instructions = StaticText(~window, Rect(10, 10, 780, 50));
+		~text_instructions.background = Color.white;
+		~text_instructions.stringColor = Color.red;
+		~text_instructions.align = \center;
+		~text_instructions.font = Font("Monaco", 30);
+
+		~text_instructions.string = "EOC Command text line test stuff.";
+
+		OSCdef(\set_clock_freq, {
+
+			|msg, time, addr, recvPort|
+
+			~clock_generator.set(msg[1].asFloat);
+
+		}, "/set_text_instructions");
+
+
+		// OSCdef(\set_text_instructions, {
+		//
+		// 	|msg, time, addr, recvPort|
+		//
+		// 	{
+		// 		~text_instructions.string = msg[1];
+		// 	}.defer
+		// }, "/set_text_instructions");
+
+		/*
 		OSCdef(\gains, {
 			|msg, time, addr, recvPort|
 			msg.postln;
@@ -44,5 +78,16 @@ s.waitForBoot(
 				~gain_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/out_gains");
-	};
-	, onFailure: {"[ERROR]failed to start the main routine".postln});
+
+
+		p.addPath({ |msg|
+
+			{
+				~text_instructions.string = msg[1];
+			}.defer;
+
+		}, "/set_text_instructions");
+
+};
+
+);

@@ -1,10 +1,28 @@
-q = P2PSC(port:12345);
-q.sendMsg("/ALL/out_gains", 1.0 ,0.0 ,1.0)
-q.getPeers
+
+q = P2PSC();
+
+
+// send single text
+
+q.sendMsg("/ALL/set_text_instructions", "!")
+
+
+//
+
+(
+Routine({
+	~peers = q.getPeers();
+}).play;
+~peers
+)
+
+
+
 Array.iota(2)+1
 ~gain_buses.scope
 x = false
 f=0.1
+
 (
 ~pos = 0;
 Routine({

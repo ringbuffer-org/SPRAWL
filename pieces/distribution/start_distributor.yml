@@ -9,6 +9,15 @@
   hosts: sprawl_nodes
   gather_facts: true
   tasks:
+
+    - name: "Kill SC!"
+      shell: killall sclang
+      ignore_errors: true
+
+    - name: "Kill SC!"
+      shell: killall scsynth
+      ignore_errors: true
+
     - name: "Ensure 'pieces' dir exists"
       ansible.builtin.file:
         path: /home/member/pieces/
