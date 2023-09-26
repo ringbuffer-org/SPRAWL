@@ -6,6 +6,7 @@ s.options.device = "Distributor";
 
 s.waitForBoot(
 	{
+
 		p = P2PSC();
 		~hostname = Pipe.new("hostname", "r").getLine;
 		p.setName(~hostname); // set your name accordingly
@@ -26,7 +27,12 @@ s.waitForBoot(
 			|freq = 1|
 			Out.ar(~n_chan,LFPulse.ar(freq, width:0.5);
 		)}.play;
-/*
+
+
+		~window = Window(bounds:800@480).front().background_(Color.black);
+		~window.fullScreen();
+
+		/*
 		OSCdef(\gains, {
 			|msg, time, addr, recvPort|
 			msg.postln;
