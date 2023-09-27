@@ -1,9 +1,9 @@
-
 q = P2PSC();
 
+q.name
 
 // send single text
-q.sendMsg("/ALL/set_text_instructions", "SECTION 2 - NOW!")
+q.sendMsg("/reel/set_text_instructions", "SECTION 2 - NOW!")
 
 
 q.sendMsg("/ALL/set_text_instructions", "More panache!")

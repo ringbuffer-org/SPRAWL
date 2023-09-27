@@ -1,6 +1,7 @@
 ~n_peers = 6;
-~n_chan = ~n_peers+1;
-s.options.numInputBusChannels = ~n_chan;
+~n_chan  = ~n_peers+1;
+
+s.options.numInputBusChannels  = ~n_chan;
 s.options.numOutputBusChannels = ~n_chan + 1;
 s.options.device = "Distributor";
 
@@ -15,14 +16,19 @@ s.waitForBoot(
 		~hostname.post;
 		s.sync();
 
-		~gain_buses = Bus.control(s, ~n_chan);
-		~gain_buses.setAt(0, 0.5);
+		~input_gain_bus = Bus.control(s,1).set(1);
+
+		~send_gain_buses = Bus.control(s, ~n_chan);
+		~send_gain_buses.setAt(0, 0.5);
 
 		~audio_router = SynthDef(\audiorouter,
 			{
-				var out_gains = ~gain_buses.kr;
-				var in_main = SoundIn.ar(0);
-				var in_ext = SoundIn.ar(Array.iota(~n_peers)+1);
+
+				var out_gains = ~send_gain_buses.kr;
+
+				var in_main   = SoundIn.ar(0) * ~input_gain_bus.kr;
+				var in_ext    = SoundIn.ar(Array.iota(~n_peers)+1);
+
 				Out.ar(0, in_main!~n_chan*out_gains);
 				Out.ar(0, Mix.new(in_ext));
 		}).play;
@@ -32,16 +38,24 @@ s.waitForBoot(
 			Out.ar(~n_chan,LFPulse.ar(freq, width:0.5);
 		)}.play;
 
-		~window = Window(bounds:800@480).front().background_(Color.black);
-		~window.fullScreen();
 
-		~text_instructions = StaticText(~window, Rect(10, 10, 780, 50));
+
+		~window = Window(bounds:800@480).front().background_(Color.black);
+		//~window.fullScreen();
+
+		~text_instructions = StaticText(~window, Rect(120, 10, 670, 200));
 		~text_instructions.background = Color.white;
 		~text_instructions.stringColor = Color.red;
 		~text_instructions.align = \center;
 		~text_instructions.font = Font("Monaco", 30);
 
 		~text_instructions.string = "EOC Command text line test stuff.";
+
+		~gain_slider_text = StaticText(~window, Rect(10, 5, 100, 50));
+		~gain_slider_text.string_("GAIN").stringColor_(Color.green).align_(\center).font_(Font("Monaco", 28););
+		~gain_slider = Slider(~window, Rect(10, 50, 100, 410));
+		~gain_slider.addAction({|sl| ~input_gain_bus.set(sl.value)});
+		~gain_slider.valueAction = 0.9;
 
 /*		OSCdef(\set_clock_freq, {
 
@@ -67,7 +81,7 @@ s.waitForBoot(
 			msg.postln;
 			if(msg.size == (~n_chan+1)){
 				msg.removeAt(0);
-				~gain_buses.setn(msg.asFloat);
+				~send_gain_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 
 		}, "/out_gains");*/
@@ -75,7 +89,7 @@ s.waitForBoot(
 		p.addPath({ |msg|
 			if(msg.size == (~n_chan+1)){
 				msg.removeAt(0);
-				~gain_buses.setn(msg.asFloat);
+				~send_gain_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/out_gains");
 
