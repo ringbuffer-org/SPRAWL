@@ -37,13 +37,19 @@
     - name: "Launch SC!"
       async: 2592000 # run for 1 month
       poll: 0
-      shell: DISPLAY=:0 sclang distributor.scd >> /tmp/distributor.log
+      # n_hosts - 1 is the number of peers 
+      shell: DISPLAY=:0 sclang distributor.scd {{ (n_hosts | int) -1 }} > /tmp/distributor.log
       args:
         chdir: /home/member/pieces/distributor/SC
+      vars:
+        n_hosts: "{{ ansible_play_hosts | length }}"
 
-    - name: "Wait a couple of seconds"
-      ansible.builtin.wait_for:
-        timeout: 5
+    - name: Wait for Supercollider to Start
+      ansible.builtin.shell: jack_lsp
+      register: result
+      until: result.stdout.find("Distributor:out_1") != -1
+      retries: 30
+      delay: 1
 
     - name: "Connect all Supercollider Instances to Hardware In- and Outputs"
       ansible.builtin.shell: |

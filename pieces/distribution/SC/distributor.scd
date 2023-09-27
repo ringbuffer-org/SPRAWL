@@ -1,4 +1,13 @@
+
+
 ~n_peers = 6;
+
+if(size(thisProcess.argv)==1,
+	{
+		~n_peers = thisProcess.argv[0].asInteger;
+});
+
+
 ~n_chan  = ~n_peers+1;
 
 s.options.numInputBusChannels  = ~n_chan;
