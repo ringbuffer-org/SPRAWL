@@ -1,0 +1,15 @@
+---
+- name: Start Recording
+  hosts: sprawl_nodes
+  gather_facts: true
+  tasks:
+    - name: "Start Recorder"
+      shell: jack_rec -b 16 -f recording_4.wav -d 10000 Distributor:out_1 Distributor:out_2
+      async: 2592000 # run for 1 month
+      poll: 0
+    - name: "Jack_connneeeect"
+      ansible.builtin.shell: |
+        jack_connect Distributor:out_1 jackrec:input1
+        jack_connect Distributor:out_{{ (length_of_hosts | int) + 1 }} jackrec:input2
+      vars:
+        length_of_hosts: "{{ ansible_play_hosts | length }}"

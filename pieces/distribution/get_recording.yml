@@ -1,0 +1,11 @@
+---
+- name: Start Recording
+  hosts: sprawl_nodes
+  gather_facts: true
+  tasks:
+    - name: Fetch recordings
+      ansible.builtin.fetch:
+        src: /home/member/recording_{{ item }}.wav
+        dest: /home/leto/ak/sprawl_recordings/rec_{{ item }}_{{inventory_hostname}}.wav
+        flat: true
+      loop: "{{ [1, 2, 3, 4] }}"
