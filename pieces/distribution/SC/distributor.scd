@@ -18,27 +18,29 @@ s.waitForBoot(
 
 		~input_gain_bus = Bus.control(s,1).set(1);
 
-		~send_gain_buses = Bus.control(s, ~n_chan);
-		~send_gain_buses.setAt(0, 0.5);
+		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
+		~delay_time_buses = Bus.control(s, ~n_chan);
 
 		~audio_router = SynthDef(\audiorouter,
 			{
 
-				var out_gains = ~send_gain_buses.kr;
+				var out_gains   = ~send_gain_buses.kr;
+				var delay_times = ~delay_time_buses.kr;
 
-				var in_main   = SoundIn.ar(0) * ~input_gain_bus.kr;
-				var in_ext    = SoundIn.ar(Array.iota(~n_peers)+1);
+				var in_local   = SoundIn.ar(0) * ~input_gain_bus.kr;
+				var in_network = Mix.ar(SoundIn.ar(Array.iota(~n_peers)+1));
 
-				Out.ar(0, in_main!~n_chan*out_gains);
-				Out.ar(0, Mix.new(in_ext));
+				var processed = DelayL.ar(in_local+in_network,1,delay_times);
+
+				// Out.ar(0, in_local!~n_chan*out_gains);
+				Out.ar(0, processed);
 		}).play;
+
 
 		~clock_generator = {
 			|freq = 1|
 			Out.ar(~n_chan,LFPulse.ar(freq, width:0.5);
 		)}.play;
-
-
 
 		~window = Window(bounds:800@480).front().background_(Color.black);
 		~window.fullScreen();
@@ -108,6 +110,13 @@ s.waitForBoot(
 				~clock_generator.set(\freq, msg[1].asFloat);
 
 		}, "/set_clock_freq");
+
+
+		p.addPath({ |msg|
+
+				~delay_time_buses.setAll(msg[1].asFloat);
+
+		}, "/set_delay_times");
 };
 
 );
