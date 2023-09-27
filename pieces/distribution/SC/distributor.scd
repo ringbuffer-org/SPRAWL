@@ -1,5 +1,4 @@
 
-
 ~n_peers = 6;
 
 if(size(thisProcess.argv)==1,
@@ -25,24 +24,29 @@ s.waitForBoot(
 		~hostname.post;
 		s.sync();
 
-		~input_gain_bus = Bus.control(s,1).set(1);
+		~instrument_gain_bus   = Bus.control(s,1).set(1);
+
+
+		~input_gain_bus  = Bus.control(s,1).set(0.9);
+		~output_gain_bus = Bus.control(s,1).set(0.9);
 
 		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
-		~delay_time_buses = Bus.control(s, ~n_chan);
+		~delay_time_buses = Bus.control(s, ~n_chan).setAll(0.1);
 
 		~audio_router = SynthDef(\audiorouter,
 			{
 
-				var out_gains   = ~send_gain_buses.kr;
+
+				var send_gains  = ~send_gain_buses.kr;
 				var delay_times = ~delay_time_buses.kr;
 
-				var in_local   = SoundIn.ar(0) * ~input_gain_bus.kr;
+				var in_local   = SoundIn.ar(0,~instrument_gain_bus.kr);
 				var in_network = Mix.ar(SoundIn.ar(Array.iota(~n_peers)+1));
 
 				var processed = DelayL.ar(in_local+in_network,1,delay_times);
 
-				// Out.ar(0, in_local!~n_chan*out_gains);
-				Out.ar(0, processed);
+				Out.ar(0, in_network);
+				Out.ar(0, processed*send_gains);
 		}).play;
 
 
@@ -65,7 +69,7 @@ s.waitForBoot(
 		~gain_slider_text = StaticText(~window, Rect(10, 5, 100, 50));
 		~gain_slider_text.string_("GAIN").stringColor_(Color.green).align_(\center).font_(Font("Monaco", 28););
 		~gain_slider = Slider(~window, Rect(10, 50, 100, 410));
-		~gain_slider.addAction({|sl| ~input_gain_bus.set(sl.value)});
+		~gain_slider.addAction({|sl| ~instrument_gain_bus.set(sl.value)});
 		~gain_slider.valueAction = 0.9;
 
 /*		OSCdef(\set_clock_freq, {
@@ -95,14 +99,14 @@ s.waitForBoot(
 				~send_gain_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 
-		}, "/out_gains");*/
+		}, "/send_gains");*/
 
 		p.addPath({ |msg|
 			if(msg.size == (~n_chan+1)){
 				msg.removeAt(0);
 				~send_gain_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
-		}, "/out_gains");
+		}, "/send_gains");
 
 
 		p.addPath({ |msg|
@@ -122,9 +126,10 @@ s.waitForBoot(
 
 
 		p.addPath({ |msg|
-
-				~delay_time_buses.setAll(msg[1].asFloat);
-
+						if(msg.size == (~n_chan+1)){
+				msg.removeAt(0);
+				~delay_time_buses.setn(msg.asFloat);
+			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/set_delay_times");
 };
 
