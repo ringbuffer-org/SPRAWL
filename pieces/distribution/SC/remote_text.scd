@@ -1,5 +1,6 @@
 q = P2PSC();
 
+
 q.name
 
 // send single text
@@ -116,7 +117,3 @@ f=0.1
 
 
 
-// SEND ALL TO ALL
-
-q.sendMsg("/ALL/out_gains", 1,1,1,1,1,1,1);
-q.sendMsg("/ALL/out_gains", 0 , 0,0,0,0,0,0);

@@ -41,7 +41,7 @@ s.waitForBoot(
 
 
 		~window = Window(bounds:800@480).front().background_(Color.black);
-		//~window.fullScreen();
+		~window.fullScreen();
 
 		~text_instructions = StaticText(~window, Rect(120, 10, 670, 200));
 		~text_instructions.background = Color.white;
