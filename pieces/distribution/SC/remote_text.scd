@@ -1,10 +1,8 @@
 q = P2PSC();
 
-
 q.name
 
-// send single text
-q.sendMsg("/reel/set_text_instructions", "SECTION 2 - NOW!")
+
 
 
 q.sendMsg("/ALL/set_text_instructions", "More panache!")
@@ -16,18 +14,13 @@ q.sendMsg("/ALL/set_text_instructions", "DAVE, komm klar!")
 
 q.sendMsg("/ALL/set_text_instructions", "Less ACID!")
 
-
 q.sendMsg("/ALL/set_text_instructions", "Geht los!");
 
-q.sendMsg("/ALL/set_text_instructions", "99.9% of full force!")
+q.sendMsg("/ALL/set_text_instructions", "90% of full force!")
 
 
-q.sendMsg("/ALL/set_text_instructions", "Fade OUT - NOW, please!")
 
 
-q.sendMsg("/ALL/set_clock_freq", 1.0);
-
-q.sendMsg("/ALL/set_clock_freq", 0);
 
 (
 Routine({
@@ -39,46 +32,51 @@ Routine({
 )
 
 
-
+////////////////////////////////////////////////////////////////////////////////////
 // send a COUNTDOWN
+////////////////////////////////////////////////////////////////////////////////////
+
 (
 Routine({
-
 	t = 20;
 	while { t > 0 } { t = t - 1;
 
+		q.sendMsg("/ALL/set_text_colors", 0);
 		q.sendMsg("/ALL/set_text_instructions", "Time to FINISH: "+t.asString());
-
-		1.wait;
+		0.5.wait;
+		q.sendMsg("/ALL/set_text_colors", 1);
+		0.5.wait;
 	};
-
 	q.sendMsg("/ALL/set_text_instructions", "SILENCE!");
+	q.sendMsg("/ALL/set_clock_freq", 0);
 
 }).play;
 )
 
 
-
-// send a COUNTDOWN
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
 (
-Routine({
+~color_ROUTINE = Routine({
 
-
-	loop({
-
-		q.sendMsg("/ALL/set_text_instructions", "Fade OUT - NOW, please!");
-		0.1.wait;
-		q.sendMsg("/ALL/set_text_instructions", "")
-
-	}).play;
-
-
+	loop(
+	{
+		q.sendMsg("/ALL/set_text_colors", 0);
+		0.1.sleep;
+		q.sendMsg("/ALL/set_text_colors", 1);
+		0.1.sleep;
+	};);
 }).play;
 )
 
+~color_ROUTINE.stop;
 
+
+
+////////////////////////////////////////////////////////////////////////////////////
 // Set Clock Frequency
-
+////////////////////////////////////////////////////////////////////////////////////
 
 
 

@@ -110,12 +110,21 @@ s.waitForBoot(
 
 
 		p.addPath({ |msg|
-
 			{
 				~text_instructions.string = msg[1];
 			}.defer;
-
 		}, "/set_text_instructions");
+
+
+		p.addPath({ |msg|
+			{
+				switch(msg[1])
+				{0}{~text_instructions.background_(Color.red).stringColor_(Color.white)}
+				{1}{~text_instructions.background_(Color.white).stringColor_(Color.red)};
+
+
+			}.defer;
+		}, "/set_text_colors");
 
 
 		p.addPath({ |msg|
