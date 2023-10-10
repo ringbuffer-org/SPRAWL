@@ -1,15 +1,18 @@
 
 ~n_peers = 6;
 
+// read n_peers from command line
 if(size(thisProcess.argv)==1,
 	{
 		~n_peers = thisProcess.argv[0].asInteger;
 });
 
-
+// number of audio outputs for routing purposes is number of peers +1
 ~n_chan  = ~n_peers+1;
 
 s.options.numInputBusChannels  = ~n_chan;
+
+// an additional output is needed for the clocksignal
 s.options.numOutputBusChannels = ~n_chan + 1;
 s.options.device = "Distributor";
 
@@ -18,37 +21,52 @@ thisProcess.openUDPPort(~input_OSC);
 
 s.waitForBoot(
 	{
+		// setup P2PSC
 		p = P2PSC();
 		~hostname = Pipe.new("hostname", "r").getLine;
 		p.setName(~hostname); // set your name accordingly
 		~hostname.post;
 		s.sync();
 
+		// GAIN BUSES
+		// Gain for the own audio input
 		~instrument_gain_bus   = Bus.control(s,1).set(1);
-
 
 		~input_gain_bus  = Bus.control(s,1).set(0.9);
 		~output_gain_bus = Bus.control(s,1).set(0.9);
+
+		~delay_input_gain_buses = Array.fill(~n_chan, {Bus.control(s, ~n_chan)});
 
 		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
 		~delay_time_buses = Bus.control(s, ~n_chan).setAll(0.1);
 
 		~audio_router = SynthDef(\audiorouter,
 			{
-
-
-				var send_gains  = ~send_gain_buses.kr;
-				var delay_times = ~delay_time_buses.kr;
-
 				var in_local   = SoundIn.ar(0,~instrument_gain_bus.kr);
 				var in_network = Mix.ar(SoundIn.ar(Array.iota(~n_peers)+1));
 
-				var processed = DelayL.ar(in_local+in_network,1,delay_times);
-
 				Out.ar(0, in_network);
-				Out.ar(0, processed*send_gains);
 		}).play;
 
+
+		~delays = Array.fill(~n_chan, {
+			arg i;
+			{
+				var index = i;
+				// TODO readd instrument gain for soundin
+				var in = SoundIn.ar(Array.iota(~n_chan));
+				var in_gains = ~delay_input_gain_buses[index].kr;
+				var delay_time = ~delay_time_buses.kr(1, index);
+				var send_gain = ~send_gain_buses.kr(1, index);
+				var instrument_gain = ~instrument_gain_bus.kr(1, index);
+				var processed;
+				in[0] = in[0] * instrument_gain;
+				processed = DelayL.ar(Mix(in*in_gains), 1, delay_time);
+
+				Out.ar(index, processed);
+
+			}.play;
+		});
 
 		~clock_generator = {
 			|freq = 1|
