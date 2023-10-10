@@ -40,6 +40,9 @@ s.waitForBoot(
 		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
 		~delay_time_buses = Bus.control(s, ~n_chan).setAll(0.1);
 
+
+		~clock_BUS = Bus.control(s,1);
+
 		~audio_router = SynthDef(\audiorouter,
 			{
 				var in_local   = SoundIn.ar(0,~instrument_gain_bus.kr);
@@ -70,8 +73,15 @@ s.waitForBoot(
 
 		~clock_generator = {
 			|freq = 1|
-			Out.ar(~n_chan,LFPulse.ar(freq, width:0.5);
-		)}.play;
+
+			var sig = LFPulse.ar(freq, width:0.5);
+			// to output
+			Out.ar(~n_chan,sig);
+
+			// for monitoring
+			Out.kr(~clock_BUS,sig);
+
+		}.play;
 
 		~window = Window(bounds:800@480).front().background_(Color.black);
 		~window.fullScreen();
@@ -90,11 +100,29 @@ s.waitForBoot(
 		~gain_slider.addAction({|sl| ~instrument_gain_bus.set(sl.value)});
 		~gain_slider.valueAction = 0.9;
 
-/*		OSCdef(\set_clock_freq, {
 
-			|msg, time, addr, recvPort|
+		~clock_meter_text = StaticText(~window, Rect(120, 210, 100, 50));
+~clock_meter_text.string_("CLOCK").stringColor_(Color.red).align_(\center).font_(Font("Monaco", 28););
+		~clock_meter = LevelIndicator(~window,Rect(150,260,40,200))
+		.warning_(0.5)           // set warning level
+		.critical_(0.9)          // set critical level
+		.background_(Color.gray);
 
-			~clock_generator.set(msg[1].asFloat);
+		~clock_ROUTINE = Routine({
+			loop{
+				~clock_BUS.get({arg value;
+					{~clock_meter.value_(value);}.defer();});
+				0.02.wait;
+			}.play;
+		});
+
+		~clock_ROUTINE.play();
+
+		/*		OSCdef(\set_clock_freq, {
+
+		|msg, time, addr, recvPort|
+
+		~clock_generator.set(msg[1].asFloat);
 
 		}, "/set_clock_freq");*/
 
@@ -110,12 +138,12 @@ s.waitForBoot(
 
 		/*
 		OSCdef(\gains, {
-			|msg, time, addr, recvPort|
-			msg.postln;
-			if(msg.size == (~n_chan+1)){
-				msg.removeAt(0);
-				~send_gain_buses.setn(msg.asFloat);
-			}{("Invalid Message Length, " ++ msg.size).postln};
+		|msg, time, addr, recvPort|
+		msg.postln;
+		if(msg.size == (~n_chan+1)){
+		msg.removeAt(0);
+		~send_gain_buses.setn(msg.asFloat);
+		}{("Invalid Message Length, " ++ msg.size).postln};
 
 		}, "/send_gains");*/
 
@@ -128,27 +156,36 @@ s.waitForBoot(
 
 
 		p.addPath({ |msg|
-
 			{
 				~text_instructions.string = msg[1];
 			}.defer;
-
 		}, "/set_text_instructions");
 
 
 		p.addPath({ |msg|
+			{
+				switch(msg[1])
+				{0}{~text_instructions.background_(Color.red).stringColor_(Color.white)}
+				{1}{~text_instructions.background_(Color.white).stringColor_(Color.red)};
 
-				~clock_generator.set(\freq, msg[1].asFloat);
+
+			}.defer;
+		}, "/set_text_colors");
+
+
+		p.addPath({ |msg|
+
+			~clock_generator.set(\freq, msg[1].asFloat);
 
 		}, "/set_clock_freq");
 
 
 		p.addPath({ |msg|
-						if(msg.size == (~n_chan+1)){
+			if(msg.size == (~n_chan+1)){
 				msg.removeAt(0);
 				~delay_time_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/set_delay_times");
-};
+	};
 
 );
