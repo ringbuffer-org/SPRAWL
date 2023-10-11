@@ -32,22 +32,22 @@ s.waitForBoot(
 		// Gain for the own audio input
 		~instrument_gain_bus   = Bus.control(s,1).set(1);
 
-		~input_gain_bus  = Bus.control(s,1).set(0.9);
-		~output_gain_bus = Bus.control(s,1).set(0.9);
+		// Bus for controlling the levels sent to the outputs
+		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
 
+		// Bus-Matrix for controlling which inputs are sent to each delay line
 		~delay_input_gain_buses = Array.fill(~n_chan, {Bus.control(s, ~n_chan)});
 
-		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
+
 		~delay_time_buses = Bus.control(s, ~n_chan).setAll(0.1);
 
 
 		~clock_BUS = Bus.control(s,1);
 
+		// Mixes incoming Network audio to main output
 		~audio_router = SynthDef(\audiorouter,
 			{
-				var in_local   = SoundIn.ar(0,~instrument_gain_bus.kr);
 				var in_network = Mix.ar(SoundIn.ar(Array.iota(~n_peers)+1));
-
 				Out.ar(0, in_network);
 		}).play;
 
@@ -56,17 +56,16 @@ s.waitForBoot(
 			arg i;
 			{
 				var index = i;
-				// TODO readd instrument gain for soundin
 				var in = SoundIn.ar(Array.iota(~n_chan));
 				var in_gains = ~delay_input_gain_buses[index].kr;
 				var delay_time = ~delay_time_buses.kr(1, index);
 				var send_gain = ~send_gain_buses.kr(1, index);
-				var instrument_gain = ~instrument_gain_bus.kr(1, index);
+				var instrument_gain = ~instrument_gain_bus.kr(1);
 				var processed;
 				in[0] = in[0] * instrument_gain;
 				processed = DelayL.ar(Mix(in*in_gains), 1, delay_time);
 
-				Out.ar(index, processed);
+				Out.ar(index, processed*send_gain);
 
 			}.play;
 		});
@@ -186,6 +185,16 @@ s.waitForBoot(
 				~delay_time_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/set_delay_times");
+
+		p.addPath({ |msg|
+			if(msg.size == (~n_chan+2)){
+				var path = msg.removeAt(0);
+				var index = msg.removeAt(0).asInteger;
+				~delay_input_gain_buses[index].setn(msg.asFloat);
+			}{("Invalid Message Length, " ++ msg.size).postln};
+		}, "/set_delay_input_gain");
+
+
 	};
 
 );
