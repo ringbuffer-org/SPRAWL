@@ -1,0 +1,17 @@
+---
+- name: Start Pitchfilter Supercollider
+  ansible.builtin.import_playbook: pitchfilter_supercollider.yml
+
+- name: Setup Jacktrip Mesh
+  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_jacktrip_mesh.yml
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: Setup Connections
+  ansible.builtin.import_playbook: pitchfilter_connect.yml

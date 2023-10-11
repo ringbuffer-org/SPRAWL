@@ -1,0 +1,25 @@
+---
+- name: Start fully connected Jacktrip Mesh
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: Kill all JackTrip things
+      command: killall jacktrip
+      ignore_errors: true
+
+    - name: "Launch JackTrip Server"
+      shell: jacktrip -S -p5
+      async: 2592000 # run for 1 month
+      poll: 0
+      when: inventory_hostname == master_node
+
+    - name: "Launch lots of JackTrip clients"
+      # create connection to server with the name
+      shell: jacktrip -n 1 -C {{ master_node }} -K {{ inventory_hostname }} -J {{master_node}}
+      async: 2592000 # run for 1 month
+      poll: 0
+      when: inventory_hostname != master_node
+
+  vars:
+    base_port: 4464
+    master_node: AP-05

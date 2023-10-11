@@ -1,7 +1,7 @@
 ---
 - name: Start fully connected Jacktrip Mesh
-  hosts: really_active_sprawl_nodes
-  gather_facts: false
+  hosts: sprawl_nodes
+  gather_facts: true
 
   tasks:
 

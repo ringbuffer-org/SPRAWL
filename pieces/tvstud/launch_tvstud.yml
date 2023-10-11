@@ -22,7 +22,7 @@
     - name: "Launch SC!"
       async: 2592000 # run for 1 month
       poll: 0
-      shell: DISPLAY=:0 sclang main.scd >> /tmp/tvstud.log
+      shell: DISPLAY=:0 sclang grains_v2.scd >> /tmp/tvstud.log
       args:
         chdir: /home/member/pieces/tvstud/SC
 

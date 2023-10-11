@@ -1,0 +1,9 @@
+---
+- name: Start Recording
+  hosts: sprawl_nodes
+  gather_facts: true
+  tasks:
+    - name: "Stop Recorder"
+      shell: killall -TERM jack_rec
+      ignore_errors: true
+

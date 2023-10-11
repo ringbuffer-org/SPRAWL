@@ -1,0 +1,34 @@
+---
+- name: Start Supercollider
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: "Ensure 'pieces' dir exists"
+      ansible.builtin.file:
+        path: /home/member/pieces/
+        state: directory
+        owner: member
+        group: member
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: "Copy Files onto the server"
+      copy:
+        src: SC
+        dest: /home/member/pieces/pitchfilter/
+        owner: member
+        group: member
+        mode: "0644"
+    - name: "Kill SC!"
+      shell: killall sclang
+      ignore_errors: true
+
+    - name: "Kill SC!"
+      shell: killall scsynth
+      ignore_errors: true
+
+    - name: "Launch SC!"
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 sclang main.scd >> /tmp/pitchfilter.log
+      args:
+        chdir: /home/member/pieces/pitchfilter/SC

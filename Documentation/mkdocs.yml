@@ -1,3 +1,105 @@
 site_name: ''
-site_url: http://ii.hvc.berlin/
-copyright: Henrik von Coler
+site_url: http://nsmi.ringbuffer.org/
+copyright: NSMI Class 2023
+
+nav:
+
+    - Home: 'index.md'
+
+    - About the System:
+      - SPRAWL 2020: sprawl_2020.md
+      - Jack + JackTrip: 'about.md'
+      - p2psc: 'p2psc.md'
+
+    - Student Projects:
+      - SCYCLONE: 'scyclone.md'
+      - Camera Tracking: 'camera_tracking.md'
+      - Neighbor's: 'neighbors_spectral_phasor.md'
+      - Filter Band: 'filter_band.md'
+      - Democratic Soundscapes: 'democratic_soundscapes.md'
+      - UNION: 'union.md'
+      - Round Robin: 'round_robin.md'
+      - LFO Panner: 'lfo_panner.md'
+      - Delay Ring: 'delay_ring.md'
+
+    - Manuals:
+
+      - SPRAWL Notes: 'system_boot.md'
+      - Ansible: 'ansible.md'
+      - Getting Started with Ansible: 'ansible_getting_started.md'
+
+#
+#     - Production Systems:
+#       - SeamLess: 'seamless.md'
+#
+#     - HCI Research:
+#       - GLOOO: glooo.md
+#
+#     - Live Ensemble:
+#       #- EOC: eoc.md
+#       - EOC: eoc.md
+#       - Network Systems: 'sprawl.md'
+#
+#         # - 'Cardboard Modular': 'cardboard_modular.md'
+#
+#     - Experimental Spatial:
+#       - 'Zerr*': 'zerr.md'
+#       - 'MACRO': 'macro.md'
+
+theme:
+  name: material
+  logo: graphics/icon.png
+  features:
+      #- header.autohide
+  palette:
+      primary: cyan
+  font:
+      text: Roboto Mono
+  features:
+    #- toc.integrate
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:voncoler@tu-berlin.de
+
+extra_css:
+    - stylesheets/extra.css
+
+
+markdown_extensions:
+    - admonition
+    - toc
+    - attr_list
+    - footnotes
+    - pymdownx.tabbed
+    - md_in_html
+    - pymdownx.keys
+    - pymdownx.superfences
+    - pymdownx.details
+    - pymdownx.tabbed:
+        alternate_style: true
+
+plugins:
+    - search
+    - mkdocs-video:
+        video_autoplay: False
+    - bibtex:
+        bib_file: "nsmi.bib"
+        #cite_inline: True
+        #csl_file: "nature.csl"
+
+    - glightbox:
+        touchNavigation: true
+        loop: false
+        effect: zoom
+        slide_effect: slide
+        width: 100%
+        height: auto
+        zoomable: true
+        draggable: true
+        skip_classes:
+         - custom-skip-class-name
+        auto_caption: true
+        caption_position: bottom

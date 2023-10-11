@@ -1,0 +1,19 @@
+---
+- name: Setup Jack Connections
+  hosts: sprawl_nodes
+  gather_facts: false
+  tasks:
+    - name: Connect local ins/outs
+      shell: |
+        jack_connect system:capture_1 SuperCollider:in_1
+        jack_connect system:capture_2 SuperCollider:in_1
+        jack_connect SuperCollider:out_1 system:playback_1
+    - name: Connect jacktrip clients
+      shell: |
+        jack_connect {{ item }}:receive_1 system:playback_1
+        jack_connect {{ item }}:receive_1 SuperCollider:in_{{ ((index + 1) % ansible_loop.length) + 2 }}
+        jack_connect SuperCollider:out_{{ index + 2 }} {{ item }}:send_1
+      loop: "{{ ansible_play_hosts | difference([inventory_hostname]) }}"
+      loop_control:
+        index_var: index
+        extended: true

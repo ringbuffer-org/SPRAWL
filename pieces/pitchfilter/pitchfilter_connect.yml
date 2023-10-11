@@ -1,0 +1,26 @@
+---
+- name: Setup Jack Connections
+  hosts: sprawl_nodes
+  gather_facts: false
+  vars: 
+    master_node: AP-05
+  tasks:
+    - name: Connect local ins/outs
+      shell: |
+        jack_connect system:capture_1 SuperCollider:in_1
+        jack_connect system:capture_2 SuperCollider:in_1
+        jack_connect {{master_node}}:receive_1 SuperCollider:in_2
+        jack_connect SuperCollider:out_1 system:playback_1
+
+      when: master_node != inventory_hostname
+
+    - name: Connect jacktrip clients
+      
+      shell: |
+        jack_connect system:capture_1 {{ item }}:send_1
+        jack_connect system:capture_2 {{ item }}:send_1
+
+      loop: "{{ ansible_play_hosts | difference([inventory_hostname]) }}"
+      when: master_node == inventory_hostname
+
+
