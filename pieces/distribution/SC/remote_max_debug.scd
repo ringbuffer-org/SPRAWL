@@ -6,7 +6,6 @@ q = P2PSC(port:12345)
 q.sendMsg("/ALL/set_delay_input_gain", 3, *[1,0,0,0,0,0,0]);
 q.sendMsg("/ALL/send_gains", 0,0.1,0.02,1,0.3,0,0.5);
 
-~n_peers = 6;
 ~n_chan = ~n_peers+1;
 
 
