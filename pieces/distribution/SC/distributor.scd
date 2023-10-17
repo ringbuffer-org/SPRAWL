@@ -1,5 +1,5 @@
 
-~n_peers = 6;
+~n_peers = 7;
 
 // read n_peers from command line
 if(size(thisProcess.argv)==1,
@@ -42,7 +42,7 @@ s.waitForBoot(
 		~delay_time_buses = Bus.control(s, ~n_chan).setAll(0.1);
 
 
-		~clock_BUS = Bus.control(s,1);
+		~clock_BUS = Bus.audio(s,1);
 
 		// Mixes incoming Network audio to main output
 		~audio_router = SynthDef(\audiorouter,
@@ -55,14 +55,16 @@ s.waitForBoot(
 		~delays = Array.fill(~n_chan, {
 			arg i;
 			{
-				var index = i;
-				var in = SoundIn.ar(Array.iota(~n_chan));
-				var in_gains = ~delay_input_gain_buses[index].kr;
+				var index      = i;
+				var in         = SoundIn.ar(Array.iota(~n_chan));
+				var in_gains   = ~delay_input_gain_buses[index].kr;
 				var delay_time = ~delay_time_buses.kr(1, index);
-				var send_gain = ~send_gain_buses.kr(1, index);
+
+				var send_gain       = ~send_gain_buses.kr(1, index);
 				var instrument_gain = ~instrument_gain_bus.kr(1);
+
 				var processed;
-				in[0] = in[0] * instrument_gain;
+				in[0]     = in[0] * instrument_gain;
 				processed = DelayL.ar(Mix(in*in_gains), 1, delay_time);
 
 				Out.ar(index, processed*send_gain);
@@ -70,17 +72,24 @@ s.waitForBoot(
 			}.play;
 		});
 
-		~clock_generator = {
-			|freq = 1|
+		 SynthDef( \clock_generator,
+			{
 
-			var sig = LFPulse.ar(freq, width:0.5);
+			|duration = 0.001|
+
+			var sig = EnvGen.ar(Env.linen(attackTime: 0, sustainTime: duration, releaseTime: 0.0001, level: 1, curve: 'lin'), 1, doneAction:2);
+
 			// to output
 			Out.ar(~n_chan,sig);
-
 			// for monitoring
-			Out.kr(~clock_BUS,sig);
+			// Out.ar(~clock_BUS,sig);
 
-		}.play;
+
+		}).add;
+
+
+
+		s.sync;
 
 		~window = Window(bounds:800@480).front().background_(Color.black);
 		~window.fullScreen();
@@ -107,15 +116,13 @@ s.waitForBoot(
 		.critical_(0.9)          // set critical level
 		.background_(Color.gray);
 
-		~clock_ROUTINE = Routine({
+/*		~clock_ROUTINE = Routine({
 			loop{
 				~clock_BUS.get({arg value;
 					{~clock_meter.value_(value);}.defer();});
 				0.02.wait;
 			}.play;
-		});
-
-		~clock_ROUTINE.play();
+		});*/
 
 		/*		OSCdef(\set_clock_freq, {
 
@@ -145,6 +152,24 @@ s.waitForBoot(
 		}{("Invalid Message Length, " ++ msg.size).postln};
 
 		}, "/send_gains");*/
+
+
+		p.addPath({ |msg|
+
+			var dur = msg[1];
+
+			var clk = Synth(\clock_generator, [\duration,dur], addAction: 'addToHead');
+
+			{
+				{~clock_meter.value_(1);}.defer;
+			0.05.sleep;
+				{~clock_meter.value_(0);}.defer;
+			}.fork;
+
+			"Gotit".postln;
+
+		}, "/trigger_clock");
+
 
 		p.addPath({ |msg|
 			if(msg.size == (~n_chan+1)){
