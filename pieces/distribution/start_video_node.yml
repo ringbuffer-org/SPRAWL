@@ -1,15 +1,6 @@
 ---
-- name: Start P2PSC
-  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_p2psc.yml
-
-- name: Create JackTrip Mesh
-  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_jacktrip_mesh.yml
-
-- name: Start video node
-  ansible.builtin.import_playbook: start_video_node.yml
-
-- name: Start Distributor
-  hosts: sprawl_nodes
+- name: Start Video node
+  hosts: video_node
   gather_facts: true
   tasks:
     - name: "Kill SC!"
@@ -61,17 +52,3 @@
         jack_connect system:capture_2 Distributor:in_1
       vars:
         length_of_hosts: "{{ ansible_play_hosts | length }}"
-
-    - name: "Connect Jacktrip Clients"
-      ansible.builtin.shell: |
-        jack_connect Distributor:out_{{ index + 2 }} {{ peer }}:send_1
-        jack_connect {{ peer }}:receive_1 Distributor:in_{{ index + 2 }}
-      vars:
-        index:
-          "{{ ansible_play_hosts.index(inventory_hostname) }}"
-          # rotates the list of hosts, (index | int) to convert the index back to int
-        rotated_host_list: "{{ ansible_play_hosts[(index | int):] + ansible_play_hosts[:(index | int)] }}"
-      loop: "{{ rotated_host_list[1:] }}"
-      loop_control:
-        index_var: index
-        loop_var: peer

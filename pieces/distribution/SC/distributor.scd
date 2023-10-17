@@ -188,8 +188,11 @@ s.waitForBoot(
 
 		p.addPath({ |msg|
 			if(msg.size == (~n_chan+2)){
-				var path = msg.removeAt(0);
+				var path  = msg.removeAt(0);
 				var index = msg.removeAt(0).asInteger;
+
+				// Prevent direct feedbacks by muting the input with the same index
+				(index>0).if({msg[index] = 0});
 				~delay_input_gain_buses[index].setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/set_delay_input_gain");
