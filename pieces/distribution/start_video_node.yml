@@ -31,11 +31,9 @@
       async: 2592000 # run for 1 month
       poll: 0
       # n_hosts - 1 is the number of peers
-      shell: DISPLAY=:0 sclang distributor.scd {{ (n_hosts | int) -1 }} > /tmp/distributor.log
+      shell: DISPLAY=:0 sclang distributor.scd 2 > /tmp/distributor.log
       args:
         chdir: /home/member/pieces/distributor/SC
-      vars:
-        n_hosts: "{{ ansible_play_hosts | length }}"
 
     - name: Wait for Supercollider to Start
       ansible.builtin.shell: jack_lsp
@@ -47,8 +45,6 @@
     - name: "Connect all Supercollider Instances to Hardware In- and Outputs"
       ansible.builtin.shell: |
         jack_connect Distributor:out_1 system:playback_1
-        jack_connect Distributor:out_{{ (length_of_hosts | int) + 1 }} system:playback_2
+        jack_connect Distributor:out_3 system:playback_2
         jack_connect system:capture_1 Distributor:in_1
         jack_connect system:capture_2 Distributor:in_1
-      vars:
-        length_of_hosts: "{{ ansible_play_hosts | length }}"

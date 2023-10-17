@@ -1,19 +1,17 @@
-~n_chan = 8;
+~n_access_points = 8;
 
 // read n_peers from command line
 if(size(thisProcess.argv)==1,
 	{
-		~n_chan = thisProcess.argv[0].asInteger;
+		~n_access_points = thisProcess.argv[0].asInteger;
 });
 
-// number of audio outputs for routing purposes is number of peers +1
-~n_peers = ~n_chan-1;
-
-s.options.numInputBusChannels  = ~n_chan;
+s.options.numInputBusChannels  = ~n_access_points;
 
 // an additional output is needed for the clocksignal
-s.options.numOutputBusChannels = ~n_chan + 1;
+s.options.numOutputBusChannels = ~n_access_points + 1;
 s.options.device = "Distributor";
+
 
 ~input_OSC = 6666;
 thisProcess.openUDPPort(~input_OSC);
@@ -21,6 +19,7 @@ thisProcess.openUDPPort(~input_OSC);
 s.waitForBoot(
 	{
 		// setup P2PSC
+
 		p = P2PSC();
 		~hostname = Pipe.new("hostname", "r").getLine;
 		p.setName(~hostname); // set your name accordingly
@@ -32,13 +31,13 @@ s.waitForBoot(
 		~instrument_gain_bus   = Bus.control(s,1).set(1);
 
 		// Bus for controlling the levels sent to the outputs
-		~send_gain_buses  = Bus.control(s, ~n_chan).setAt(0, 0.5);
+		~send_gain_buses  = Bus.control(s, ~n_access_points).setAt(0, 0.5);
 
 		// Bus-Matrix for controlling which inputs are sent to each delay line
-		~delay_input_gain_buses = Array.fill(~n_chan, {Bus.control(s, ~n_chan)});
+		~delay_input_gain_buses = Array.fill(~n_access_points, {Bus.control(s, ~n_access_points)});
 
 
-		~delay_time_buses = Bus.control(s, ~n_chan).setAll(0.1);
+		~delay_time_buses = Bus.control(s, ~n_access_points).setAll(0.1);
 
 
 		~clock_BUS = Bus.audio(s,1);
@@ -46,16 +45,16 @@ s.waitForBoot(
 		// Mixes incoming Network audio to main output
 		~audio_router = SynthDef(\audiorouter,
 			{
-				var in_network = Mix.ar(SoundIn.ar(Array.iota(~n_peers)+1));
+				var in_network = Mix.ar(SoundIn.ar(Array.iota(~n_access_points-1)+1));
 				Out.ar(0, in_network);
 		}).play;
 
 
-		~delays = Array.fill(~n_chan, {
+		~delays = Array.fill(~n_access_points, {
 			arg i;
 			{
 				var index      = i;
-				var in         = SoundIn.ar(Array.iota(~n_chan));
+				var in         = SoundIn.ar(Array.iota(~n_access_points));
 				var in_gains   = ~delay_input_gain_buses[index].kr;
 				var delay_time = ~delay_time_buses.kr(1, index);
 
@@ -79,7 +78,7 @@ s.waitForBoot(
 			var sig = EnvGen.ar(Env.linen(attackTime: 0, sustainTime: duration, releaseTime: 0.0001, level: 1, curve: 'lin'), 1, doneAction:2);
 
 			// to output
-			Out.ar(~n_chan,sig);
+			Out.ar(~n_access_points,sig);
 			// for monitoring
 			// Out.ar(~clock_BUS,sig);
 
@@ -114,6 +113,7 @@ s.waitForBoot(
 		.warning_(0.5)           // set warning level
 		.critical_(0.9)          // set critical level
 		.background_(Color.gray);
+//		s.scope;
 
 /*		~clock_ROUTINE = Routine({
 			loop{
@@ -145,7 +145,7 @@ s.waitForBoot(
 		OSCdef(\gains, {
 		|msg, time, addr, recvPort|
 		msg.postln;
-		if(msg.size == (~n_chan+1)){
+		if(msg.size == (~n_access_points+1)){
 		msg.removeAt(0);
 		~send_gain_buses.setn(msg.asFloat);
 		}{("Invalid Message Length, " ++ msg.size).postln};
@@ -170,7 +170,7 @@ s.waitForBoot(
 
 
 		p.addPath({ |msg|
-			if(msg.size == (~n_chan+1)){
+			if(msg.size == (~n_access_points+1)){
 				msg.removeAt(0);
 				~send_gain_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
@@ -203,14 +203,14 @@ s.waitForBoot(
 
 
 		p.addPath({ |msg|
-			if(msg.size == (~n_chan+1)){
+			if(msg.size == (~n_access_points+1)){
 				msg.removeAt(0);
 				~delay_time_buses.setn(msg.asFloat);
 			}{("Invalid Message Length, " ++ msg.size).postln};
 		}, "/set_delay_times");
 
 		p.addPath({ |msg|
-			if(msg.size == (~n_chan+2)){
+			if(msg.size == (~n_access_points+2)){
 				var path  = msg.removeAt(0);
 				var index = msg.removeAt(0).asInteger;
 
