@@ -1,4 +1,7 @@
 [sprawl_nodes]
 AP-01 ansible_user=member
-AP-0[3:9] ansible_user=member
+AP-0[3:8] ansible_user=member
 AP-1[0:7] ansible_user=member
+
+[video_node]
+AP-09 ansible_user=member

@@ -40,7 +40,7 @@
       async: 2592000 # run for 1 month
       poll: 0
       # n_hosts - 1 is the number of peers
-      shell: DISPLAY=:0 sclang distributor.scd {{ (n_hosts | int) -1 }} > /tmp/distributor.log
+      shell: DISPLAY=:0 sclang distributor.scd {{ n_hosts }} > /tmp/distributor.log
       args:
         chdir: /home/member/pieces/distributor/SC
       vars:

@@ -1,14 +1,13 @@
-
-~n_peers = 7;
+~n_chan = 8;
 
 // read n_peers from command line
 if(size(thisProcess.argv)==1,
 	{
-		~n_peers = thisProcess.argv[0].asInteger;
+		~n_chan = thisProcess.argv[0].asInteger;
 });
 
 // number of audio outputs for routing purposes is number of peers +1
-~n_chan  = ~n_peers+1;
+~n_peers = ~n_chan-1;
 
 s.options.numInputBusChannels  = ~n_chan;
 
@@ -166,7 +165,6 @@ s.waitForBoot(
 				{~clock_meter.value_(0);}.defer;
 			}.fork;
 
-			"Gotit".postln;
 
 		}, "/trigger_clock");
 

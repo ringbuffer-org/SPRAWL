@@ -1,8 +1,25 @@
+
+
+
+ // send every input to every delay, except the one for the device the delay is sending to
+(
+~n_systems.do({
+	|i|
+	var gains = Array.fill(~n_systems, 0.5);
+	gains[i] = 0;
+	q.sendMsg("/ALL/set_delay_input_gain", i, *gains);
+
+})
+)
+
+
+
 // ALL OFF
-q.sendMsg("/ALL/send_gains", *(Array.zeroFill(7)));
+q.sendMsg("/ALL/send_gains", *(Array.zeroFill(8)));
 
 // only local speaker
-q.sendMsg("/ALL/send_gains", 0.8,0.1,0.02,0,0,0,0);
+q.sendMsg("/ALL/send_gains", 0.8, 0, 0, 0, 0, 0, 0, 0);
+
 q.sendMsg("/ALL/set_delay_times", 0, 0,0,0,0,0,0);
 
 // wide spread delay
