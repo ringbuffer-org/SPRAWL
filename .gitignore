@@ -165,3 +165,5 @@ Documentation/site
 
 ansible.cfg
 sprawl_venv/
+pi_setup/playbooks/report/reports/*
+pieces/scyclone/binaries/*

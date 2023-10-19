@@ -1,0 +1,49 @@
+---
+- name: "Start the filter_band config!"
+  hosts: sprawl_nodes
+  gather_facts: false
+
+  tasks:
+    - name: Determine Scyclone model
+      set_fact:
+        scyclone_model: >-
+          {{
+            'Cats' if scyclone_id == '0' else
+            'VCTK' if scyclone_id == '1' else
+            'Jazz' if scyclone_id == '2' else
+            'Cats'
+          }}
+      vars:
+        scyclone_id: '0'
+        # scyclone_id: "{{ (inventory_hostname[-2:] | int) % 3 }}"
+
+    - name: Debug
+      debug: 
+        msg: "/home/valentin/Scyclone_{{ scyclone_model }}"
+
+    - name: "Ensure 'pieces' dir exists"
+      copy:
+        src: "binaries/Scyclone_{{ scyclone_model }}"
+        dest: /home/member/pieces/Scyclone
+        owner: member
+        group: member
+        mode: '0755'
+
+    - name: "Copy Files onto the server"
+      copy:
+        src: binaries/libonnxruntime.so.1.12.1
+        dest: /usr/lib/libonnxruntime.so.1.12.1
+        owner: root
+        group: root
+        mode: '0755'
+      become: true
+
+    - name: Kill all Scyclone processes
+      command:
+        cmd: killall Scyclone
+      ignore_errors: yes
+      
+    - name: Start Scyclone
+      async: 2592000 # run for 1 month
+      poll: 0
+      shell: DISPLAY=:0 /home/member/pieces/Scyclone >> /tmp/ScycloneLog.txt

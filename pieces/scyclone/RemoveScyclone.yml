@@ -1,0 +1,12 @@
+---
+- name: "Start the filter_band config!"
+  hosts: sprawl_nodes
+  gather_facts: false
+
+  tasks:
+    - name: "Ensure 'Scyclone' application is deleted"
+      become: yes
+      become_user: root
+      file:
+        path: /home/member/pieces/Scyclone
+        state: absent

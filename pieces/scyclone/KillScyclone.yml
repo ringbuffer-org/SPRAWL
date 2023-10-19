@@ -1,0 +1,11 @@
+---
+- name: "Start the filter_band config!"
+  hosts: sprawl_nodes
+  gather_facts: false
+
+  tasks:
+    - name: Kill all Scyclone processes
+      command:
+        cmd: killall Scyclone
+      ignore_errors: yes
+      

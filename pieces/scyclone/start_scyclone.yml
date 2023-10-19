@@ -1,0 +1,56 @@
+---
+- name: Kill all running instances of Scyclone
+  ansible.builtin.import_playbook: KillScyclone.yml
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: Remove all Scyclone binaries
+  ansible.builtin.import_playbook: RemoveScyclone.yml
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: Restart Jack
+  ansible.builtin.import_playbook: ../../pi_setup/playbooks/restart_jackd.yml
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: Copy Scyclone to targets and exectue
+  ansible.builtin.import_playbook: ScycloneVCTK_CATS.yml
+  #ansible.builtin.import_playbook: Scyclone.yml
+
+- name: "Sleepytime"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: GuNa
+      ansible.builtin.wait_for:
+        timeout: 4
+
+- name: Connect all instances of Scyclone to network and adc/dac's
+  ansible.builtin.import_playbook: ScycloneConnect.yml
