@@ -3,8 +3,8 @@
 ~instrument_gain_bus.scope
 
 q = P2PSC(port:12345)
-q.sendMsg("/ALL/set_delay_input_gain", 0, *[1,0,0,0,0,0,0]);
-q.sendMsg("/ALL/send_gains", 0,0.1,0.02,1,0.3,0,0.1, 0);
+q.sendMsg("/ALL/set_delay_input_gain", 0, *[1,0,0,0,0,0,0,0]);
+q.sendMsg("/ALL/send_gains", *[1,0,0,0,0,0,0,0]);
 q.sendMsg("/ALL/send_gains", *Array.fill(~n_chan, 0.1));
 q.sendMsg("/ALL/trigger_clock", 1);
 do
@@ -23,3 +23,6 @@ do
 
 })
 )
+
+q.sendMsg("/ALL/trigger_clock", 0.001);
+~clock_duration = 0.04;

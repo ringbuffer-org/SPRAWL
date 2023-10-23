@@ -2,7 +2,10 @@
 // Get ready
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+// TODO Tuning-Pause statt silence, danach silence
 (
+~clock_routine.reset();
 q.sendMsg("/ALL/set_text_instructions", "Silence: Prepare for Section 3.")
 )
 

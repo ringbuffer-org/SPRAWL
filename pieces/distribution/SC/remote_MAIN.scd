@@ -16,12 +16,11 @@ q.name;
 (
 
 ~clock_delta    = 1;
-~clock_duration = 0.001;
+~clock_duration = 0.01;
 
 ~clock_routine = Routine({
 	{
 		q.sendMsg("/ALL/trigger_clock", ~clock_duration);
-
 		~clock_delta.sleep;
 
 	}.loop;

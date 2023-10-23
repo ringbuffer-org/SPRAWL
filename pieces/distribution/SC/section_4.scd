@@ -2,8 +2,9 @@
 // Get ready
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+// habens ein bisschen schneller gemacht
 (
-~tempo_SLIDER.valueAction_(0.5);
+~tempo_SLIDER.valueAction_(0.4);
 ~clock_routine.reset();
 ~clock_routine.play();
 q.sendMsg("/ALL/set_text_instructions", "Silence: Prepare for Section 4.")

@@ -20,7 +20,7 @@ s.waitForBoot(
 	{
 		// setup P2PSC
 
-		p = P2PSC(ip:"localhost", port:1234);
+		p = P2PSC(ip:"localhost", port:3760);
 		~hostname = Pipe.new("hostname", "r").getLine;
 		p.setName(~hostname); // set your name accordingly
 		~hostname.post;
@@ -63,7 +63,7 @@ s.waitForBoot(
 
 				var processed;
 				in[0]     = in[0] * instrument_gain;
-				processed = DelayL.ar(Mix(in*in_gains), 1, delay_time);
+				processed = DelayL.ar(Mix(in*in_gains), 2, delay_time);
 
 				Out.ar(index, processed*send_gain);
 
