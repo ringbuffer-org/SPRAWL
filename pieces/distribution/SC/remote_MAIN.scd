@@ -57,7 +57,7 @@ q.name;
 		while { t > 0 } { t = t - 1;
 
 			q.sendMsg("/ALL/set_text_colors", 0);
-			q.sendMsg("/ALL/set_text_instructions", "Start gently!");
+			q.sendMsg("/ALL/set_text_instructions", "Start gently - fade in now!");
 			1.wait;
 			q.sendMsg("/ALL/set_text_colors", 1);
 			1.wait;
@@ -66,6 +66,21 @@ q.name;
 };
 
 
+~start_countdown = {
+	Routine({
+		t = 10;
+		while { t > 0 } { t = t - 1;
+
+			q.sendMsg("/ALL/set_text_colors", 0);
+			q.sendMsg("/ALL/set_text_instructions", "GO in:"+t.asString());
+			1.wait;
+			q.sendMsg("/ALL/set_text_colors", 1);
+			1.wait;
+		};
+
+					q.sendMsg("/ALL/set_text_instructions", "GO NOW!");
+	}).play;
+};
 
 // Fadeout COUNTDOWN:
 ~fadeout_countdown = {
@@ -87,6 +102,25 @@ q.name;
 };
 
 
+~climax_countdown = {
+	Routine({
+		t = 20;
+		while { t > 0 } { t = t - 1;
+
+			q.sendMsg("/ALL/set_text_colors", 0);
+			q.sendMsg("/ALL/set_text_instructions", "CRESCENDO climax in: "+t.asString());
+			0.5.wait;
+			q.sendMsg("/ALL/set_text_colors", 1);
+			0.5.wait;
+		};
+		q.sendMsg("/ALL/set_text_instructions", "SILENCE!");
+		~clock_routine.stop();
+
+	}).play;
+};
+
+
+
 // Distribution Fader (not working yet)
 {
 	var window      = Window(name:"Section 1 Controls", bounds:Rect(400,400,800,800));
@@ -104,5 +138,6 @@ q.name;
 		gains.postln;
 
 	});
-}.value;
+};
+
 )

@@ -1,4 +1,4 @@
-
+// a loos collection of lines to set gains and delays
 
 
  // send every input to every delay, except the one for the device the delay is sending to
