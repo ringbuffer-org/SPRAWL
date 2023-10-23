@@ -20,7 +20,7 @@ s.waitForBoot(
 	{
 		// setup P2PSC
 
-		p = P2PSC();
+		p = P2PSC(ip:"localhost", port:1234);
 		~hostname = Pipe.new("hostname", "r").getLine;
 		p.setName(~hostname); // set your name accordingly
 		~hostname.post;
