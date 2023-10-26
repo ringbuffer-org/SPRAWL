@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 (
-q.sendMsg("/ALL/set_clock_freq", 1);
+//q.sendMsg("/ALL/set_clock_freq", 1);
 q.sendMsg("/ALL/set_text_instructions", "Silence: Prepare for Section 1.")
 )
 
