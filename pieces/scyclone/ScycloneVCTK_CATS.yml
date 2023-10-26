@@ -1,6 +1,6 @@
 ---
-- name: "Start the filter_band config!"
-  hosts: sprawl_nodes
+- name: "Rollout Scyclone Binaries"
+  hosts: sprawl_nodes_no_video_node
   gather_facts: false
 
   tasks:
@@ -11,15 +11,18 @@
             'Cats' if scyclone_id == '0' else
             'VCTK' if scyclone_id == '1' else
             'Jazz' if scyclone_id == '2' else
+            'Djembe' if scyclone_id == '3' else
             'Cats'
           }}
       vars:
-        scyclone_id: '0'
-        # scyclone_id: "{{ (inventory_hostname[-2:] | int) % 3 }}"
+        scyclone_id: '1'                                        # Sprache
+        # scyclone_id: '0'                                        # Katze
+        # scyclone_id: '2'                                        # Jazz (Jazz) Jazz!
+        # scyclone_id: "{{ (inventory_hostname[-2:] | int)  % 4 }}" # Gemischt
 
     - name: Debug
       debug: 
-        msg: "/home/valentin/Scyclone_{{ scyclone_model }}"
+        msg: "{{ scyclone_model }}"
 
     - name: "Ensure 'pieces' dir exists"
       copy:
@@ -47,3 +50,10 @@
       async: 2592000 # run for 1 month
       poll: 0
       shell: DISPLAY=:0 /home/member/pieces/Scyclone >> /tmp/ScycloneLog.txt
+
+    - name: Wait for Scyclone to Start
+      ansible.builtin.shell: jack_lsp
+      register: result
+      until: result.stdout.find("Scyclone:out_1") != -1
+      retries: 30
+      delay: 1

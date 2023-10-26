@@ -1,33 +1,29 @@
 ---
-- name: Setup Jacktrip Mesh
-  ansible.builtin.import_playbook: ../../pi_setup/playbooks/launch_jacktrip_mesh.yml
-
-- name: "Sleepytime"
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: GuNa
-      ansible.builtin.wait_for:
-        timeout: 4
-
 - name: "Start the filter_band config!"
-  hosts: sprawl_nodes
+  hosts: sprawl_nodes_no_video_node
   gather_facts: false
 
   tasks:
-    - name: Connect local ins/outs
-      shell: |
-        jack_connect system:capture_1 Scyclone:in_2
-        jack_connect system:capture_2 Scyclone:in_2
-        jack_connect Scyclone:out_1 system:playback_1
-        jack_connect Scyclone:out_2 system:playback_1
-
-    - name: "Connect local Jacktrip Clients"
+    - name: "Connect all Supercollider Instances to Hardware In- and Outputs"
       ansible.builtin.shell: |
-        jack_connect {{ next_host }}:receive_1 Scyclone:in_1
-        jack_connect Scyclone:out_2 {{ prev_host }}:send_1
+        jack_connect Distributor:out_1 system:playback_1
+        jack_connect system:capture_1 Scyclone:in_1
+        jack_connect system:capture_2 Scyclone:in_1
+        jack_connect Scyclone:out_1 Distributor:in_1
+        jack_connect Scyclone:out_2 Distributor:in_1
       vars:
-        next_host: "{{ ansible_play_hosts[((index_of_host | int) + 1) % (length_of_hosts | int)] }}"
-        prev_host: "{{ ansible_play_hosts[((index_of_host | int) - 1) % (length_of_hosts | int)] }}"
-        index_of_host: "{{ ansible_play_hosts.index(inventory_hostname) }}"
         length_of_hosts: "{{ ansible_play_hosts | length }}"
+
+    - name: "Connect Jacktrip Clients"
+      ansible.builtin.shell: |
+        jack_connect Distributor:out_{{ index + 2 }} {{ peer }}:send_1
+        jack_connect {{ peer }}:receive_1 Scyclone:in_1
+      vars:
+        index:
+          "{{ ansible_play_hosts.index(inventory_hostname) }}"
+          # rotates the list of hosts, (index | int) to convert the index back to int
+        rotated_host_list: "{{ ansible_play_hosts[(index | int):] + ansible_play_hosts[:(index | int)] }}"
+      loop: "{{ rotated_host_list[1:] }}"
+      loop_control:
+        index_var: index
+        loop_var: peer

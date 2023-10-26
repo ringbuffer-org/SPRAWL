@@ -93,7 +93,7 @@ s.waitForBoot(
             ~text_fb2  = TextField(~window, Rect(~text_start,5,(~width_xy/2).asInteger,33)).string = "feedback 2:";
             ~text_start = ~text_start + (~width_xy/2).asInteger + ~margin;
 
-            ~text_gain = TextField(~window, Rect(~text_start,5,~width_slider,33)).string = "gain:";
+            ~text_gain = TextField(~window, Rect(~text_start,5,~width_slider,33)).string = "dry gain:";
 
             ~text_routine = Routine({
                 loop{
@@ -107,7 +107,7 @@ s.waitForBoot(
                     0.1.wait;
                 }
             }).play;
-
+            ~window.fullScreen();
         }.defer;
 
 
@@ -124,11 +124,11 @@ s.waitForBoot(
             var mx_2 = In.kr(~bus_mix2).lag(0.1);
             var gain = In.kr(~bus_gain).lag(0.1);
 
-            var sig_main = in_main + in_remote_1 + in_remote_2;
+            var sig_main = (in_main * gain) + in_remote_1 + in_remote_2;
             var sig_1 = ((in_main * mx_1) + (in_remote_1)) * fb_1;
             var sig_2 = ((in_main * mx_2) + (in_remote_2)) * fb_2;
 
-            Out.ar(0, sig_main * gain);
+            Out.ar(0, sig_main );
             Out.ar(1, DelayL.ar(sig_1, 2, delay_1));
             Out.ar(2, DelayL.ar(sig_2, 2, delay_2));
         }).play(s);

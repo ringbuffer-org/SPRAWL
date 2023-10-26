@@ -1,0 +1,35 @@
+---
+- name: Get Connection State of Pis
+  hosts: sprawl_nodes
+  gather_facts: false
+  pre_tasks:
+    - name: Ensure Reports directories exist
+      ansible.builtin.file:
+        state: directory
+        path: "{{ playbook_dir }}/reports/fragments/"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Ensure fragments directory is empty
+      ansible.builtin.file:
+        state: absent
+        path: "{{ playbook_dir }}/reports/fragments/*"
+      delegate_to: localhost
+      run_once: true
+  tasks:
+    - name: Get jack info
+      ansible.builtin.command: jack_lsp -cp
+      register: result
+
+    - name: Write single reports
+      ansible.builtin.template:
+        src: "templates/connections.txt.j2"
+        dest: "{{ playbook_dir }}/reports/fragments/{{ inventory_hostname }}.txt"
+      delegate_to: localhost
+
+    - name: Assemble Report
+      ansible.builtin.assemble:
+        src: "{{ playbook_dir }}/reports/fragments/"
+        dest: "{{ playbook_dir }}/reports/connections.txt"
+      delegate_to: localhost
+      run_once: true
