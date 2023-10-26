@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // BASIC Startup
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,19 +37,17 @@ load(~rootPath++"remote_gains.scd");
 // this clock/delay function is called by different sliders
 ~tempo_delay_callback = {
 
-	    var temp         = 0.1 + (~tempo_SLIDER.value * 4);
+	var temp         = 0.1 + (~tempo_SLIDER.value * 4);
+	var trim         = (temp* (~delay_slider.value));
+	var other_delays = Array.series(~n_systems-1, temp, trim);
+	var delay_times  = [0]++other_delays;
 
-		var trim         = (temp* (~delay_slider.value));
-		var other_delays = Array.series(~n_systems-1, temp, trim);
-		var delay_times  = [0]++other_delays;
+	delay_times  = delay_times*~offset_SLIDER.value;
+	~clock_delta = temp;
 
-		~clock_delta = temp;
-
-		q.sendMsg("/ALL/set_delay_times", *delay_times);
-
-		"Clock_Delta = "++temp.postln;
-
-		delay_times.postln;
+	q.sendMsg("/ALL/set_delay_times", *delay_times);
+	delay_times.postln;
+	// "Clock_Delta = "++temp.postln;
 
 };
 
@@ -58,17 +55,29 @@ load(~rootPath++"remote_gains.scd");
 // this gain function is called by different sliders
 ~gains_callback = {
 
-	    var gain_arr = Array.fill(~n_systems-1, 0.2);
-	    gain_arr[0] = 1;
 
-	    q.sendMsg("/ALL/send_gains", *gain_arr);
-	    // q.sendMsg("/ALL/set_delay_times", *Array.series(~n_systems, 0, ~clock_delta));
-	    ~n_systems.do({
+	var send_gains, input_gains;
+
+	var input_slider = ~input_slider.value();
+	var send_slider  = ~send_slider.value();
+
+
+	send_gains = 0.5*max(Array.series(~n_systems, send_slider, -0.5* (1-send_slider)),0);
+
+
+
+	send_gains[0] = 1;
+	send_gains.postln;
+	q.sendMsg("/ALL/send_gains", *send_gains);
+
+	input_gains = Array.fill(~n_systems, 0.4*input_slider);
+	input_gains[0] = 1;
+
+	~n_systems.do({
 		|i|
-		var gains = Array.fill(~n_systems, 0.3);
-		gains[0]=1;
-		q.sendMsg("/ALL/set_delay_input_gain", i, *gains);
 
+		input_gains.postln;
+		q.sendMsg("/ALL/set_delay_input_gain", i, *input_gains);
 	})
 
 };
@@ -76,7 +85,7 @@ load(~rootPath++"remote_gains.scd");
 // GUI Main
 {
 
-	var mute_button, delay_slider_text, send_slider_text, input_slider_text;
+	var mute_button, input_reset_button, delay_slider_text, send_slider_text, input_slider_text, tempo_slider_text, offset_slider_text;
 
 	~main_gui_WINDOW = Window(name:"Audio Routing", bounds:Rect(400,400,800,700));
 
@@ -87,40 +96,62 @@ load(~rootPath++"remote_gains.scd");
 	temp.postln;
 	});*/
 
-	mute_button = Button(~main_gui_WINDOW, Rect(10,55, 123,123));
-	mute_button.states_([["MUTE ALL", Color.white, Color.red]]);
-	mute_button.action_({~mute_all_gains_NET.choose()});
+
 
 	input_slider_text = StaticText(~main_gui_WINDOW,Rect(150,15, 123,30)).string_("INPUT").align_('center');
 	~input_slider = Slider(~main_gui_WINDOW, Rect(150,55, 123,345));
+	~input_slider.background = Color.red;
+	~input_slider.addAction({~gains_callback.choose()});
 
-	delay_slider_text = StaticText(~main_gui_WINDOW,Rect(300,15, 123,30)).string_("DELAYS").align_('center');
+	delay_slider_text = StaticText(~main_gui_WINDOW,Rect(260,15, 223,30)).string_("DELAY-Spread").align_('center');
 	~delay_slider = Slider(~main_gui_WINDOW, Rect(300,55, 123,345));
+	~delay_slider.background = Color.cyan;
 	~delay_slider.addAction({~tempo_delay_callback.choose()});
+
 
 	input_slider_text = StaticText(~main_gui_WINDOW,Rect(450,15, 123,30)).string_("SEND").align_('center');
 	~send_slider = Slider(~main_gui_WINDOW, Rect(450,55, 123,345));
+	~send_slider.background = Color.green;
+	~send_slider.addAction({~gains_callback.choose()});
 
+	tempo_slider_text = StaticText(~main_gui_WINDOW,Rect(10,450, 123,30)).string_("TEMPO").align_('left');
 	~tempo_SLIDER = Slider(~main_gui_WINDOW, Rect(100, 450, 500, 80));
+	~tempo_SLIDER.background = Color.blue;
 	~tempo_SLIDER.addAction({~tempo_delay_callback.choose()});
 
+	offset_slider_text = StaticText(~main_gui_WINDOW,Rect(10,600, 123,60)).string_("CLOCK to Delay").align_('left');
+	~offset_SLIDER = Slider(~main_gui_WINDOW, Rect(100, 600, 500, 80));
+	~offset_SLIDER.background = Color.cyan;
+~offset_SLIDER.addAction({~tempo_delay_callback.choose()});
+
+		mute_button = Button(~main_gui_WINDOW, Rect(10,55, 123,123));
+	mute_button.states_([["MUTE ALL", Color.red, Color.yellow]]);
+	mute_button.action_({~mute_all_gains_NET.choose()});
+
+	input_reset_button = Button(~main_gui_WINDOW, Rect(10,255, 123,123));
+	input_reset_button.states_([["Reset Input", Color.white, Color.red]]);
+	input_reset_button.action_({~input_slider.valueAction_(0)});
 
 
 	~main_gui_WINDOW.front;
+
 }.value;
 
 
 
-/*// Tempo Slider GUI
+/*
+// Tempo Slider GUI
 {
-	w = Window(name:"Tempo Slider", bounds:Rect(400,400,300,500));
-	w.front;
+w = Window(name:"Tempo Slider", bounds:Rect(400,400,300,500));
+w.front;
 
 
 
-}.value;*/
+}.value;
+*/
 
 ~tempo_SLIDER.valueAction_(0.2);
+~offset_SLIDER.valueAction_(1);
 
 
 
@@ -154,7 +185,7 @@ load(~rootPath++"remote_gains.scd");
 			1.wait;
 		};
 
-					q.sendMsg("/ALL/set_text_instructions", "GO NOW!");
+		q.sendMsg("/ALL/set_text_instructions", "GO NOW!");
 	}).play;
 };
 
