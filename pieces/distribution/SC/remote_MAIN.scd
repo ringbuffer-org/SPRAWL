@@ -70,7 +70,7 @@ load(~rootPath++"remote_gains.scd");
 	send_gains.postln;
 	q.sendMsg("/ALL/send_gains", *send_gains);
 
-	input_gains = Array.fill(~n_systems, 0.3*input_slider);
+	input_gains = Array.fill(~n_systems, 0.4*input_slider);
 	input_gains[0] = 1;
 
 	~n_systems.do({
