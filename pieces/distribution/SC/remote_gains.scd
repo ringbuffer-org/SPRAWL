@@ -47,10 +47,10 @@
 
 // short tempo delay, also delay everything else
 ~clocked_delay_all_NET = {
-	var gain_arr = Array.fill(~n_systems, 0.2);
+	var gain_arr = Array.fill(~n_systems, 0.3);
 	gain_arr[0] = 1;
 	q.sendMsg("/ALL/send_gains", *gain_arr);
-	// q.sendMsg("/ALL/set_delay_times", *Array.series(~n_systems, 0, ~clock_delta));
+	//q.sendMsg("/ALL/set_delay_times", *Array.series(~n_systems, 0, ~clock_delta));
 	~n_systems.do({
 		|i|
 		var gains = Array.fill(~n_systems, 0.3);
