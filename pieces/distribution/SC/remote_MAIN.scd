@@ -100,7 +100,7 @@ load(~rootPath++"remote_gains.scd");
 
 	var mute_button, input_reset_button, delay_slider_text, send_slider_text, input_slider_text, tempo_slider_text, offset_slider_text;
 
-	~main_gui_WINDOW = Window(name:"Audio Routing", bounds:Rect(400,400,800,700));
+	~main_gui_WINDOW = Window(name:"Audio Routing", bounds:Rect(200,400,1400,750));
 
 	/*	~tempo_SLIDER = Slider(w, Rect(50, 50, 150, 400));
 	~tempo_SLIDER.addAction({ |sl|
@@ -116,18 +116,17 @@ load(~rootPath++"remote_gains.scd");
 	~input_slider.background = Color.red;
 	~input_slider.addAction({~input_gain_callback.choose()});
 
-	delay_slider_text = StaticText(~main_gui_WINDOW,Rect(260,15, 223,30)).string_("DELAY-Spread").align_('center');
+	delay_slider_text = StaticText(~main_gui_WINDOW,Rect(250,15, 223,30)).string_("DELAY-Spread").align_('center');
 	~delay_slider = Slider(~main_gui_WINDOW, Rect(300,55, 123,345));
 	~delay_slider.background = Color.cyan;
 	~delay_slider.addAction({~tempo_delay_callback.choose()});
 
-
-	input_slider_text = StaticText(~main_gui_WINDOW,Rect(450,15, 123,30)).string_("SEND").align_('center');
+	input_slider_text = StaticText(~main_gui_WINDOW,Rect(445,15, 123,30)).string_("SEND GAIN").align_('center');
 	~send_slider = Slider(~main_gui_WINDOW, Rect(450,55, 123,345));
 	~send_slider.background = Color.green;
 	~send_slider.addAction({~send_gain_callback.choose()});
 
-	~send_xy = Slider2D(~main_gui_WINDOW, Rect(600, 55, 345, 345));
+	~send_xy = Slider2D(~main_gui_WINDOW, Rect(650, 55, 645, 645));
 	~send_xy.background = Color.green;
 	~send_xy.addAction({~send_gain_callback.choose()});
 
@@ -139,9 +138,9 @@ load(~rootPath++"remote_gains.scd");
 	offset_slider_text = StaticText(~main_gui_WINDOW,Rect(10,600, 123,60)).string_("CLOCK to Delay").align_('left');
 	~offset_SLIDER = Slider(~main_gui_WINDOW, Rect(100, 600, 500, 80));
 	~offset_SLIDER.background = Color.cyan;
-~offset_SLIDER.addAction({~tempo_delay_callback.choose()});
+	~offset_SLIDER.addAction({~tempo_delay_callback.choose()});
 
-		mute_button = Button(~main_gui_WINDOW, Rect(10,55, 123,123));
+	mute_button = Button(~main_gui_WINDOW, Rect(10,55, 123,123));
 	mute_button.states_([["MUTE ALL", Color.red, Color.yellow]]);
 	mute_button.action_({~mute_all_gains_NET.choose()});
 
