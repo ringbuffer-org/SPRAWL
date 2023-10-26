@@ -53,22 +53,12 @@ load(~rootPath++"remote_gains.scd");
 
 
 // this gain function is called by different sliders
-~gains_callback = {
+~input_gain_callback = {
 
 
-	var send_gains, input_gains;
+	var  input_gains;
 
 	var input_slider = ~input_slider.value();
-	var send_slider  = ~send_slider.value();
-
-
-	send_gains = 0.5*max(Array.series(~n_systems, send_slider, -0.5* (1-send_slider)),0);
-
-
-
-	send_gains[0] = 1;
-	send_gains.postln;
-	q.sendMsg("/ALL/send_gains", *send_gains);
 
 	input_gains = Array.fill(~n_systems, 0.4*input_slider);
 	input_gains[0] = 1;
@@ -79,6 +69,29 @@ load(~rootPath++"remote_gains.scd");
 		input_gains.postln;
 		q.sendMsg("/ALL/set_delay_input_gain", i, *input_gains);
 	})
+
+};
+
+~send_gain_callback = {
+	var send_gains;
+
+	var level = ~send_slider.value();
+	var pos = ~send_xy.x * 2;
+	var width = (1-~send_xy.y)*15 +2;
+	var range = ~n_systems / width;
+
+	pos = (pos * 0.5 * ~n_systems) + (width*0.5);
+	send_gains = Array.fill(~n_systems, {
+		arg i;
+		var amp;
+		var c_pos = (pos - i) /width;
+		c_pos = c_pos - (range * (c_pos/range).floor);
+		if(c_pos >= 1.0, {amp = 0.0;}, {amp = level * (c_pos * pi).sin});
+		amp;
+	});
+	q.sendMsg("/ALL/send_gains", *send_gains);
+	send_gains.postln;
+
 
 };
 
@@ -101,7 +114,7 @@ load(~rootPath++"remote_gains.scd");
 	input_slider_text = StaticText(~main_gui_WINDOW,Rect(150,15, 123,30)).string_("INPUT").align_('center');
 	~input_slider = Slider(~main_gui_WINDOW, Rect(150,55, 123,345));
 	~input_slider.background = Color.red;
-	~input_slider.addAction({~gains_callback.choose()});
+	~input_slider.addAction({~input_gain_callback.choose()});
 
 	delay_slider_text = StaticText(~main_gui_WINDOW,Rect(260,15, 223,30)).string_("DELAY-Spread").align_('center');
 	~delay_slider = Slider(~main_gui_WINDOW, Rect(300,55, 123,345));
@@ -112,7 +125,11 @@ load(~rootPath++"remote_gains.scd");
 	input_slider_text = StaticText(~main_gui_WINDOW,Rect(450,15, 123,30)).string_("SEND").align_('center');
 	~send_slider = Slider(~main_gui_WINDOW, Rect(450,55, 123,345));
 	~send_slider.background = Color.green;
-	~send_slider.addAction({~gains_callback.choose()});
+	~send_slider.addAction({~send_gain_callback.choose()});
+
+	~send_xy = Slider2D(~main_gui_WINDOW, Rect(600, 55, 345, 345));
+	~send_xy.background = Color.green;
+	~send_xy.addAction({~send_gain_callback.choose()});
 
 	tempo_slider_text = StaticText(~main_gui_WINDOW,Rect(10,450, 123,30)).string_("TEMPO").align_('left');
 	~tempo_SLIDER = Slider(~main_gui_WINDOW, Rect(100, 450, 500, 80));
