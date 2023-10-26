@@ -76,21 +76,23 @@ load(~rootPath++"remote_gains.scd");
 	var send_gains;
 
 	var level = ~send_slider.value();
-	var pos = ~send_xy.x * 2;
-	var width = (1-~send_xy.y)*15 +2;
-	var range = ~n_systems / width;
+	var pos = ~send_xy.x * ~n_systems;
+	var width = ~send_xy.y*10 ;
 
-	pos = (pos * 0.5 * ~n_systems) + (width*0.5);
+
+
 	send_gains = Array.fill(~n_systems, {
 		arg i;
-		var amp;
-		var c_pos = (pos - i) /width;
-		c_pos = c_pos - (range * (c_pos/range).floor);
-		if(c_pos >= 1.0, {amp = 0.0;}, {amp = level * (c_pos * pi).sin});
-		amp;
+		var center = i-pos;
+		var val = pow(1/((center*center)+1), width);
+		if(val<0.001,{val=0.0});
+		val;
 	});
+
+	send_gains[0] = max(send_gains[0], 0.3);
+	send_gains = send_gains* (10 / (send_gains.sum()+10)) * level;
 	q.sendMsg("/ALL/send_gains", *send_gains);
-	send_gains.postln;
+	//send_gains.postln;
 
 
 };
