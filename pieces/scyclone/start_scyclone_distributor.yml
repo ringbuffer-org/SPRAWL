@@ -21,7 +21,7 @@
 
     - name: "Copy Files onto the server"
       ansible.builtin.copy:
-        src: SC
+        src: ../distribution/SC
         dest: /home/member/pieces/distributor
         owner: member
         group: member

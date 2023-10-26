@@ -8,4 +8,11 @@
       command:
         cmd: killall Scyclone
       ignore_errors: yes
-      
+
+    - name: "Kill SC!"
+      shell: killall sclang
+      ignore_errors: true
+
+    - name: "Kill SC!"
+      shell: killall scsynth
+      ignore_errors: true
