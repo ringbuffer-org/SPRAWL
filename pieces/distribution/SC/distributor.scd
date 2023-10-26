@@ -56,7 +56,7 @@ s.waitForBoot(
 				var index      = i;
 				var in         = SoundIn.ar(Array.iota(~n_access_points));
 				var in_gains   = ~delay_input_gain_buses[index].kr;
-				var delay_time = ~delay_time_buses.kr(1, index);
+				var delay_time = Lag.kr(~delay_time_buses.kr(1, index),0.1);
 
 				var send_gain       = ~send_gain_buses.kr(1, index);
 				var instrument_gain = ~instrument_gain_bus.kr(1);
